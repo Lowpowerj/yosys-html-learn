@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RTLIL text representation &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="010: Converting Verilog to BLIF page" href="APPNOTE_010_Verilog_to_BLIF.html" />
+    <link rel="prev" title="Auxiliary programs" href="CHAPTER_Auxprogs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">RTLIL text representation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#lexical-elements">Lexical elements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#characters">Characters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#identifiers">Identifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#values">Values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#strings">Strings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#comments">Comments</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#file">File</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#autoindex-statements">Autoindex statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#modules">Modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#attribute-statements">Attribute statements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#signal-specifications">Signal specifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connections">Connections</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wires">Wires</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memories">Memories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cells">Cells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#processes">Processes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#switches">Switches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#syncs">Syncs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">RTLIL text representation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/appendix/CHAPTER_TextRtlil.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rtlil-text-representation">
+<span id="chapter-textrtlil"></span><h1>RTLIL text representation<a class="headerlink" href="#rtlil-text-representation" title="Permalink to this heading"></a></h1>
+<p>This appendix documents the text representation of RTLIL in extended Backus-Naur
+form (EBNF).</p>
+<p>The grammar is not meant to represent semantic limitations. That is, the grammar
+is “permissive”, and later stages of processing perform more rigorous checks.</p>
+<p>The grammar is also not meant to represent the exact grammar used in the RTLIL
+frontend, since that grammar is specific to processing by lex and yacc, is even
+more permissive, and is somewhat less understandable than simple EBNF notation.</p>
+<p>Finally, note that all statements (rules ending in <code class="docutils literal notranslate"><span class="pre">-stmt</span></code>) terminate in an
+end-of-line. Because of this, a statement cannot be broken into multiple lines.</p>
+<section id="lexical-elements">
+<h2>Lexical elements<a class="headerlink" href="#lexical-elements" title="Permalink to this heading"></a></h2>
+<section id="characters">
+<h3>Characters<a class="headerlink" href="#characters" title="Permalink to this heading"></a></h3>
+<p>An RTLIL file is a stream of bytes. Strictly speaking, a “character” in an RTLIL
+file is a single byte. The lexer treats multi-byte encoded characters as
+consecutive single-byte characters. While other encodings <em>may</em> work, UTF-8 is
+known to be safe to use. Byte order marks at the beginning of the file will
+cause an error.</p>
+<p>ASCII spaces (32) and tabs (9) separate lexer tokens.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">nonws</span></code> character, used in identifiers, is any character whose encoding
+consists solely of bytes above ASCII space (32).</p>
+<p>An <code class="docutils literal notranslate"><span class="pre">eol</span></code> is one or more consecutive ASCII newlines (10) and carriage returns
+(13).</p>
+</section>
+<section id="identifiers">
+<h3>Identifiers<a class="headerlink" href="#identifiers" title="Permalink to this heading"></a></h3>
+<p>There are two types of identifiers in RTLIL:</p>
+<ul class="simple">
+<li><p>Publically visible identifiers</p></li>
+<li><p>Auto-generated identifiers</p></li>
+</ul>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span>            <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">public-id</span><span class="p">&gt;</span> | <span class="p">&lt;</span><span class="nc">autogen-id</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">public-id</span><span class="p">&gt;</span>     <span class="o">::=</span> \ <span class="p">&lt;</span><span class="nc">nonws</span><span class="p">&gt;</span>+
+<span class="p">&lt;</span><span class="nc">autogen-id</span><span class="p">&gt;</span>    <span class="o">::=</span> $ <span class="p">&lt;</span><span class="nc">nonws</span><span class="p">&gt;</span>+
+</pre></div>
+</div>
+</section>
+<section id="values">
+<h3>Values<a class="headerlink" href="#values" title="Permalink to this heading"></a></h3>
+<p>A <em>value</em> consists of a width in bits and a bit representation, most
+significant bit first. Bits may be any of:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: A logic zero value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>: A logic one value</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">x</span></code>: An unknown logic value (or don’t care in case patterns)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">z</span></code>: A high-impedance value (or don’t care in case patterns)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">m</span></code>: A marked bit (internal use only)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-</span></code>: A don’t care value</p></li>
+</ul>
+<p>An <em>integer</em> is simply a signed integer value in decimal format. <strong>Warning:</strong>
+Integer constants are limited to 32 bits. That is, they may only be in the range
+<span class="math notranslate nohighlight">\([-2147483648, 2147483648)\)</span>. Integers outside this range will result in an
+error.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">value</span><span class="p">&gt;</span>         <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">decimal-digit</span><span class="p">&gt;</span>+ &#39; <span class="p">&lt;</span><span class="nc">binary-digit</span><span class="p">&gt;</span>*
+<span class="p">&lt;</span><span class="nc">decimal-digit</span><span class="p">&gt;</span> <span class="o">::=</span> 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+<span class="p">&lt;</span><span class="nc">binary-digit</span><span class="p">&gt;</span>  <span class="o">::=</span> 0 | 1 | x | z | m | -
+<span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>       <span class="o">::=</span> -? <span class="p">&lt;</span><span class="nc">decimal-digit</span><span class="p">&gt;</span>+
+</pre></div>
+</div>
+</section>
+<section id="strings">
+<h3>Strings<a class="headerlink" href="#strings" title="Permalink to this heading"></a></h3>
+<p>A string is a series of characters delimited by double-quote characters. Within
+a string, any character except ASCII NUL (0) may be used. In addition, certain
+escapes can be used:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">\n</span></code>: A newline</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">\t</span></code>: A tab</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">\ooo</span></code>: A character specified as a one, two, or three digit octal value</p></li>
+</ul>
+<p>All other characters may be escaped by a backslash, and become the following
+character. Thus:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">\\</span></code>: A backslash</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">\&quot;</span></code>: A double-quote</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">\r</span></code>: An ‘r’ character</p></li>
+</ul>
+</section>
+<section id="comments">
+<h3>Comments<a class="headerlink" href="#comments" title="Permalink to this heading"></a></h3>
+<p>A comment starts with a <code class="docutils literal notranslate"><span class="pre">#</span></code> character and proceeds to the end of the line. All
+comments are ignored.</p>
+</section>
+</section>
+<section id="file">
+<h2>File<a class="headerlink" href="#file" title="Permalink to this heading"></a></h2>
+<p>A file consists of an optional autoindex statement followed by zero or more
+modules.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">file</span><span class="p">&gt;</span> <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">autoidx-stmt</span><span class="p">&gt;</span>? <span class="p">&lt;</span><span class="nc">module</span><span class="p">&gt;</span>*
+</pre></div>
+</div>
+<section id="autoindex-statements">
+<h3>Autoindex statements<a class="headerlink" href="#autoindex-statements" title="Permalink to this heading"></a></h3>
+<p>The autoindex statement sets the global autoindex value used by Yosys when it
+needs to generate a unique name, e.g. <code class="docutils literal notranslate"><span class="pre">flattenN</span></code>. The N part is filled with
+the value of the global autoindex value, which is subsequently incremented. This
+global has to be dumped into RTLIL, otherwise e.g. dumping and running a pass
+would have different properties than just running a pass on a warm design.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">autoidx-stmt</span><span class="p">&gt;</span> <span class="o">::=</span> autoidx <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="modules">
+<h3>Modules<a class="headerlink" href="#modules" title="Permalink to this heading"></a></h3>
+<p>Declares a module, with zero or more attributes, consisting of zero or more
+wires, memories, cells, processes, and connections.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">module</span><span class="p">&gt;</span>            <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">module-stmt</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">module-body</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">module-end-stmt</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">module-stmt</span><span class="p">&gt;</span>       <span class="o">::=</span> module <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">module-body</span><span class="p">&gt;</span>       <span class="o">::=</span> (<span class="p">&lt;</span><span class="nc">param-stmt</span><span class="p">&gt;</span>
+                     |   <span class="p">&lt;</span><span class="nc">wire</span><span class="p">&gt;</span>
+                     |   <span class="p">&lt;</span><span class="nc">memory</span><span class="p">&gt;</span>
+                     |   <span class="p">&lt;</span><span class="nc">cell</span><span class="p">&gt;</span>
+                     |   <span class="p">&lt;</span><span class="nc">process</span><span class="p">&gt;</span>)*
+<span class="p">&lt;</span><span class="nc">param-stmt</span><span class="p">&gt;</span>        <span class="o">::=</span> parameter <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">constant</span><span class="p">&gt;</span>? <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">constant</span><span class="p">&gt;</span>          <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">value</span><span class="p">&gt;</span> | <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span> | <span class="p">&lt;</span><span class="nc">string</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">module-end-stmt</span><span class="p">&gt;</span>   <span class="o">::=</span> end <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="attribute-statements">
+<h3>Attribute statements<a class="headerlink" href="#attribute-statements" title="Permalink to this heading"></a></h3>
+<p>Declares an attribute with the given identifier and value.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span> <span class="o">::=</span> attribute <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">constant</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="signal-specifications">
+<h3>Signal specifications<a class="headerlink" href="#signal-specifications" title="Permalink to this heading"></a></h3>
+<p>A signal is anything that can be applied to a cell port, i.e. a constant value,
+all bits or a selection of bits from a wire, or concatenations of those.</p>
+<p><strong>Warning:</strong> When an integer constant is a sigspec, it is always 32 bits wide,
+2’s complement. For example, a constant of <span class="math notranslate nohighlight">\(-1\)</span> is the same as
+<code class="docutils literal notranslate"><span class="pre">32'11111111111111111111111111111111</span></code>, while a constant of <span class="math notranslate nohighlight">\(1\)</span> is the
+same as <code class="docutils literal notranslate"><span class="pre">32'1</span></code>.</p>
+<p>See <a class="reference internal" href="../CHAPTER_Overview.html#sec-rtlil-sigspec"><span class="std std-numref">Sec. 4.2.4</span></a> for an overview of signal
+specifications.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">constant</span><span class="p">&gt;</span>
+           |  <span class="p">&lt;</span><span class="nc">wire-id</span><span class="p">&gt;</span>
+           |  <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> [ <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span> (:<span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>)? ]
+           |  { <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span>* }
+</pre></div>
+</div>
+</section>
+<section id="connections">
+<h3>Connections<a class="headerlink" href="#connections" title="Permalink to this heading"></a></h3>
+<p>Declares a connection between the given signals.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">conn-stmt</span><span class="p">&gt;</span> <span class="o">::=</span> connect <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="wires">
+<h3>Wires<a class="headerlink" href="#wires" title="Permalink to this heading"></a></h3>
+<p>Declares a wire, with zero or more attributes, with the given identifier and
+options in the enclosing module.</p>
+<p>See <a class="reference internal" href="../CHAPTER_Overview.html#sec-rtlil-cell-wire"><span class="std std-numref">Sec. 4.2.3</span></a> for an overview of wires.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">wire</span><span class="p">&gt;</span>          <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">wire-stmt</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">wire-stmt</span><span class="p">&gt;</span>     <span class="o">::=</span> wire <span class="p">&lt;</span><span class="nc">wire-option</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">wire-id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">wire-id</span><span class="p">&gt;</span>       <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">wire-option</span><span class="p">&gt;</span>   <span class="o">::=</span> width <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  offset <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  input <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  output <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  inout <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  upto
+                 |  signed
+</pre></div>
+</div>
+</section>
+<section id="memories">
+<h3>Memories<a class="headerlink" href="#memories" title="Permalink to this heading"></a></h3>
+<p>Declares a memory, with zero or more attributes, with the given identifier and
+options in the enclosing module.</p>
+<p>See <a class="reference internal" href="../CHAPTER_Overview.html#sec-rtlil-memory"><span class="std std-numref">Sec. 4.2.6</span></a> for an overview of memory cells, and
+<a class="reference internal" href="../CHAPTER_CellLib.html#sec-memcells"><span class="std std-numref">Sec. 5.1.5</span></a> for details about memory cell types.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">memory</span><span class="p">&gt;</span>        <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">memory-stmt</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">memory-stmt</span><span class="p">&gt;</span>   <span class="o">::=</span> memory <span class="p">&lt;</span><span class="nc">memory-option</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">memory-option</span><span class="p">&gt;</span> <span class="o">::=</span> width <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  size <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+                 |  offset <span class="p">&lt;</span><span class="nc">integer</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="cells">
+<h3>Cells<a class="headerlink" href="#cells" title="Permalink to this heading"></a></h3>
+<p>Declares a cell, with zero or more attributes, with the given identifier and
+type in the enclosing module.</p>
+<p>Cells perform functions on input signals. See <a class="reference internal" href="../CHAPTER_CellLib.html#chapter-celllib"><span class="std std-numref">Chap. 5</span></a> for a detailed list of cell types.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">cell</span><span class="p">&gt;</span>              <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">cell-stmt</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">cell-body-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">cell-end-stmt</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">cell-stmt</span><span class="p">&gt;</span>         <span class="o">::=</span> cell <span class="p">&lt;</span><span class="nc">cell-type</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">cell-id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">cell-id</span><span class="p">&gt;</span>           <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">cell-type</span><span class="p">&gt;</span>         <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">cell-body-stmt</span><span class="p">&gt;</span>    <span class="o">::=</span> parameter (signed | real)? <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">constant</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+                     |  connect <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">cell-end-stmt</span><span class="p">&gt;</span>     <span class="o">::=</span> end <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="processes">
+<h3>Processes<a class="headerlink" href="#processes" title="Permalink to this heading"></a></h3>
+<p>Declares a process, with zero or more attributes, with the given identifier in
+the enclosing module. The body of a process consists of zero or more
+assignments, exactly one switch, and zero or more syncs.</p>
+<p>See <a class="reference internal" href="../CHAPTER_Overview.html#sec-rtlil-process"><span class="std std-numref">Sec. 4.2.5</span></a> for an overview of processes.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">process</span><span class="p">&gt;</span>       <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">proc-stmt</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">process-body</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">proc-end-stmt</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">proc-stmt</span><span class="p">&gt;</span>     <span class="o">::=</span> process <span class="p">&lt;</span><span class="nc">id</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">process-body</span><span class="p">&gt;</span>  <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">assign-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">switch</span><span class="p">&gt;</span>? <span class="p">&lt;</span><span class="nc">assign-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">sync</span><span class="p">&gt;</span>*
+<span class="p">&lt;</span><span class="nc">assign-stmt</span><span class="p">&gt;</span>   <span class="o">::=</span> assign <span class="p">&lt;</span><span class="nc">dest-sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">src-sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">dest-sigspec</span><span class="p">&gt;</span>  <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">src-sigspec</span><span class="p">&gt;</span>   <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">proc-end-stmt</span><span class="p">&gt;</span> <span class="o">::=</span> end <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="switches">
+<h3>Switches<a class="headerlink" href="#switches" title="Permalink to this heading"></a></h3>
+<p>Switches test a signal for equality against a list of cases. Each case specifies
+a comma-separated list of signals to check against. If there are no signals in
+the list, then the case is the default case. The body of a case consists of zero
+or more switches and assignments. Both switches and cases may have zero or more
+attributes.</p>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">switch</span><span class="p">&gt;</span>            <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">switch-stmt</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">case</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">switch-end-stmt</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">switch-stmt</span><span class="p">&gt;</span>        := <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* switch <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">case</span><span class="p">&gt;</span>              <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">attr-stmt</span><span class="p">&gt;</span>* <span class="p">&lt;</span><span class="nc">case-stmt</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">case-body</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">case-stmt</span><span class="p">&gt;</span>         <span class="o">::=</span> case <span class="p">&lt;</span><span class="nc">compare</span><span class="p">&gt;</span>? <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">compare</span><span class="p">&gt;</span>           <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> (, <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span>)*
+<span class="p">&lt;</span><span class="nc">case-body</span><span class="p">&gt;</span>         <span class="o">::=</span> (<span class="p">&lt;</span><span class="nc">switch</span><span class="p">&gt;</span> | <span class="p">&lt;</span><span class="nc">assign-stmt</span><span class="p">&gt;</span>)*
+<span class="p">&lt;</span><span class="nc">switch-end-stmt</span><span class="p">&gt;</span>   <span class="o">::=</span> end <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="syncs">
+<h3>Syncs<a class="headerlink" href="#syncs" title="Permalink to this heading"></a></h3>
+<p>Syncs update signals with other signals when an event happens. Such an event may
+be:</p>
+<ul class="simple">
+<li><p>An edge or level on a signal</p></li>
+<li><p>Global clock ticks</p></li>
+<li><p>Initialization</p></li>
+<li><p>Always</p></li>
+</ul>
+<div class="highlight-BNF notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nc">sync</span><span class="p">&gt;</span>          <span class="o">::=</span> <span class="p">&lt;</span><span class="nc">sync-stmt</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">update-stmt</span><span class="p">&gt;</span>*
+<span class="p">&lt;</span><span class="nc">sync-stmt</span><span class="p">&gt;</span>     <span class="o">::=</span> sync <span class="p">&lt;</span><span class="nc">sync-type</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+                 |  sync global <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+                 |  sync init <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+                 |  sync always <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nc">sync-type</span><span class="p">&gt;</span>     <span class="o">::=</span> low | high | posedge | negedge | edge
+<span class="p">&lt;</span><span class="nc">update-stmt</span><span class="p">&gt;</span>   <span class="o">::=</span> update <span class="p">&lt;</span><span class="nc">dest-sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">src-sigspec</span><span class="p">&gt;</span> <span class="p">&lt;</span><span class="nc">eol</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_Auxprogs.html" class="btn btn-neutral float-left" title="Auxiliary programs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="APPNOTE_010_Verilog_to_BLIF.html" class="btn btn-neutral float-right" title="010: Converting Verilog to BLIF page" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

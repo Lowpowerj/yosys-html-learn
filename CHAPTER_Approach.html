@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3. Approach &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="4. Implementation overview" href="CHAPTER_Overview.html" />
+    <link rel="prev" title="2. Basic principles" href="CHAPTER_Basics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">3. Approach</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#data-and-control-flow">3.1. Data- and control-flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#internal-formats-in-yosys">3.2. Internal formats in Yosys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#typical-use-case">3.3. Typical use case</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">3. </span>Approach</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CHAPTER_Approach.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="approach">
+<span id="chapter-approach"></span><h1><span class="section-number">3. </span>Approach<a class="headerlink" href="#approach" title="Permalink to this heading"></a></h1>
+<p>Yosys is a tool for synthesising (behavioural) Verilog HDL code to target
+architecture netlists. Yosys aims at a wide range of application domains and
+thus must be flexible and easy to adapt to new tasks. This chapter covers the
+general approach followed in the effort to implement this tool.</p>
+<section id="data-and-control-flow">
+<h2><span class="section-number">3.1. </span>Data- and control-flow<a class="headerlink" href="#data-and-control-flow" title="Permalink to this heading"></a></h2>
+<p>The data- and control-flow of a typical synthesis tool is very similar to the
+data- and control-flow of a typical compiler: different subsystems are called in
+a predetermined order, each consuming the data generated by the last subsystem
+and generating the data for the next subsystem (see <a class="reference internal" href="#fig-approach-flow"><span class="std std-numref">Fig. 3.1</span></a>).</p>
+<figure class="align-default" id="fig-approach-flow">
+<img alt="_images/approach_flow.png" class="width-helper" src="_images/approach_flow.png" />
+<figcaption>
+<p><span class="caption-number">Fig. 3.1 </span><span class="caption-text">General data- and control-flow of a synthesis tool</span><a class="headerlink" href="#fig-approach-flow" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p>The first subsystem to be called is usually called a frontend. It does not
+process the data generated by another subsystem but instead reads the user
+input—in the case of a HDL synthesis tool, the behavioural HDL code.</p>
+<p>The subsystems that consume data from previous subsystems and produce data for
+the next subsystems (usually in the same or a similar format) are called passes.</p>
+<p>The last subsystem that is executed transforms the data generated by the last
+pass into a suitable output format and writes it to a disk file. This subsystem
+is usually called the backend.</p>
+<p>In Yosys all frontends, passes and backends are directly available as commands
+in the synthesis script. Thus the user can easily create a custom synthesis flow
+just by calling passes in the right order in a synthesis script.</p>
+</section>
+<section id="internal-formats-in-yosys">
+<h2><span class="section-number">3.2. </span>Internal formats in Yosys<a class="headerlink" href="#internal-formats-in-yosys" title="Permalink to this heading"></a></h2>
+<p>Yosys uses two different internal formats. The first is used to store an
+abstract syntax tree (AST) of a Verilog input file. This format is simply called
+AST and is generated by the Verilog Frontend. This data structure is consumed by
+a subsystem called AST Frontend <a class="footnote-reference brackets" href="#id2" id="id1">1</a>. This AST Frontend then generates a design
+in Yosys’ main internal format, the
+Register-Transfer-Level-Intermediate-Language (RTLIL) representation. It does
+that by first performing a number of simplifications within the AST
+representation and then generating RTLIL from the simplified AST data structure.</p>
+<p>The RTLIL representation is used by all passes as input and outputs. This has
+the following advantages over using different representational formats between
+different passes:</p>
+<ul class="simple">
+<li><p>The passes can be rearranged in a different order and passes can be removed
+or inserted.</p></li>
+<li><p>Passes can simply pass-thru the parts of the design they don’t change without
+the need to convert between formats. In fact Yosys passes output the same
+data structure they received as input and performs all changes in place.</p></li>
+<li><p>All passes use the same interface, thus reducing the effort required to
+understand a pass when reading the Yosys source code, e.g. when adding
+additional features.</p></li>
+</ul>
+<p>The RTLIL representation is basically a netlist representation with the
+following additional features:</p>
+<ul class="simple">
+<li><p>An internal cell library with fixed-function cells to represent RTL datapath
+and register cells as well as logical gate-level cells (single-bit gates and
+registers).</p></li>
+<li><p>Support for multi-bit values that can use individual bits from wires as well
+as constant bits to represent coarse-grain netlists.</p></li>
+<li><p>Support for basic behavioural constructs (if-then-else structures and
+multi-case switches with a sensitivity list for updating the outputs).</p></li>
+<li><p>Support for multi-port memories.</p></li>
+</ul>
+<p>The use of RTLIL also has the disadvantage of having a very powerful format
+between all passes, even when doing gate-level synthesis where the more advanced
+features are not needed. In order to reduce complexity for passes that operate
+on a low-level representation, these passes check the features used in the input
+RTLIL and fail to run when unsupported high-level constructs are used. In such
+cases a pass that transforms the higher-level constructs to lower-level
+constructs must be called from the synthesis script first.</p>
+</section>
+<section id="typical-use-case">
+<span id="sec-typusecase"></span><h2><span class="section-number">3.3. </span>Typical use case<a class="headerlink" href="#typical-use-case" title="Permalink to this heading"></a></h2>
+<p>The following example script may be used in a synthesis flow to convert the
+behavioural Verilog code from the input file design.v to a gate-level netlist
+synth.v using the cell library described by the Liberty file :</p>
+<div class="highlight-yoscrypt notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="c1"># read input file to internal representation</span><span class="w"></span>
+<span class="linenos"> 2</span><span class="k">read_verilog</span><span class="w"> </span><span class="n">design.v</span><span class="w"></span>
+<span class="linenos"> 3</span>
+<span class="linenos"> 4</span><span class="c1"># convert high-level behavioral parts (&quot;processes&quot;) to d-type flip-flops and muxes</span><span class="w"></span>
+<span class="linenos"> 5</span><span class="k">proc</span><span class="w"></span>
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="c1"># perform some simple optimizations</span><span class="w"></span>
+<span class="linenos"> 8</span><span class="k">opt</span><span class="w"></span>
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="c1"># convert high-level memory constructs to d-type flip-flops and multiplexers</span><span class="w"></span>
+<span class="linenos">11</span><span class="k">memory</span><span class="w"></span>
+<span class="linenos">12</span>
+<span class="linenos">13</span><span class="c1"># perform some simple optimizations</span><span class="w"></span>
+<span class="linenos">14</span><span class="k">opt</span><span class="w"></span>
+<span class="linenos">15</span>
+<span class="linenos">16</span><span class="c1"># convert design to (logical) gate-level netlists</span><span class="w"></span>
+<span class="linenos">17</span><span class="k">techmap</span><span class="w"></span>
+<span class="linenos">18</span>
+<span class="linenos">19</span><span class="c1"># perform some simple optimizations</span><span class="w"></span>
+<span class="linenos">20</span><span class="k">opt</span><span class="w"></span>
+<span class="linenos">21</span>
+<span class="linenos">22</span><span class="c1"># map internal register types to the ones from the cell library</span><span class="w"></span>
+<span class="linenos">23</span><span class="k">dfflibmap</span><span class="w"> </span><span class="na">-liberty</span><span class="w"> </span><span class="n">cells.lib</span><span class="w"></span>
+<span class="linenos">24</span>
+<span class="linenos">25</span><span class="c1"># use ABC to map remaining logic to cells from the cell library</span><span class="w"></span>
+<span class="linenos">26</span><span class="k">abc</span><span class="w"> </span><span class="na">-liberty</span><span class="w"> </span><span class="n">cells.lib</span><span class="w"></span>
+<span class="linenos">27</span>
+<span class="linenos">28</span><span class="c1"># cleanup</span><span class="w"></span>
+<span class="linenos">29</span><span class="k">opt</span><span class="w"></span>
+<span class="linenos">30</span>
+<span class="linenos">31</span><span class="c1"># write results to output file</span><span class="w"></span>
+<span class="linenos">32</span><span class="k">write_verilog</span><span class="w"> </span><span class="n">synth.v</span><span class="w"></span>
+</pre></div>
+</div>
+<p>A detailed description of the commands available in Yosys can be found in
+<a class="reference internal" href="cmd_ref.html#cmd-ref"><span class="std std-ref">Command line reference</span></a>.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p>In Yosys the term pass is only used to refer to commands that operate on the
+RTLIL data structure.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_Basics.html" class="btn btn-neutral float-left" title="2. Basic principles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CHAPTER_Overview.html" class="btn btn-neutral float-right" title="4. Implementation overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

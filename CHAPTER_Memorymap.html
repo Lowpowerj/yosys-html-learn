@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>10. Memory mapping &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Auxiliary libraries" href="appendix/CHAPTER_Auxlibs.html" />
+    <link rel="prev" title="9. Technology mapping" href="CHAPTER_Techmap.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">10. Memory mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#additional-notes">10.1. Additional notes</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#memory-kind-selection">10.1.1. Memory kind selection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initial-data">10.1.2. Initial data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#write-port-with-byte-enables">10.1.3. Write port with byte enables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#simple-dual-port-sdp-memory-patterns">10.2. Simple dual port (SDP) memory patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#asynchronous-read-sdp">10.2.1. Asynchronous-read SDP</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-sdp-with-clock-domain-crossing">10.2.2. Synchronous SDP with clock domain crossing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-sdp-read-first">10.2.3. Synchronous SDP read first</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-sdp-with-undefined-collision-behavior">10.2.4. Synchronous SDP with undefined collision behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-sdp-with-write-first-behavior">10.2.5. Synchronous SDP with write-first behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-sdp-with-write-first-behavior-alternate-pattern">10.2.6. Synchronous SDP with write-first behavior (alternate pattern)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#single-port-ram-memory-patterns">10.3. Single-port RAM memory patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#asynchronous-read-single-port-ram">10.3.1. Asynchronous-read single-port RAM</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-single-port-ram-with-mutually-exclusive-read-write">10.3.2. Synchronous single-port RAM with mutually exclusive read/write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-single-port-ram-with-read-first-behavior">10.3.3. Synchronous single-port RAM with read-first behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-single-port-ram-with-write-first-behavior">10.3.4. Synchronous single-port RAM with write-first behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-read-port-with-initial-value">10.3.5. Synchronous read port with initial value</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#read-register-reset-patterns">10.4. Read register reset patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-reset-reset-priority-over-enable">10.4.1. Synchronous reset, reset priority over enable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-reset-enable-priority-over-reset">10.4.2. Synchronous reset, enable priority over reset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-read-port-with-asynchronous-reset">10.4.3. Synchronous read port with asynchronous reset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#asymmetric-memory-patterns">10.5. Asymmetric memory patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#wide-synchronous-read-port">10.5.1. Wide synchronous read port</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wide-asynchronous-read-port">10.5.2. Wide asynchronous read port</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wide-write-port">10.5.3. Wide write port</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#true-dual-port-tdp-patterns">10.6. True dual port (TDP) patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tdp-with-different-clocks-exclusive-read-write">10.6.1. TDP with different clocks, exclusive read/write</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tdp-with-same-clock-read-first-behavior">10.6.2. TDP with same clock, read-first behavior</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#tdp-with-multiple-read-ports">10.6.3. TDP with multiple read ports</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#not-yet-supported-patterns">10.7. Not yet supported patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#synchronous-sdp-with-write-first-behavior-via-blocking-assignments">10.7.1. Synchronous SDP with write-first behavior via blocking assignments</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#asymmetric-memories-via-part-selection">10.7.2. Asymmetric memories via part selection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#undesired-patterns">10.8. Undesired patterns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#asynchronous-writes">10.8.1. Asynchronous writes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">10. </span>Memory mapping</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CHAPTER_Memorymap.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="memory-mapping">
+<span id="chapter-memorymap"></span><h1><span class="section-number">10. </span>Memory mapping<a class="headerlink" href="#memory-mapping" title="Permalink to this heading"></a></h1>
+<p>Documentation for the Yosys <code class="docutils literal notranslate"><span class="pre">memory_libmap</span></code> memory mapper.  Note that not all supported patterns
+are included in this document, of particular note is that combinations of multiple patterns should
+generally work.  For example, <a class="reference internal" href="#write-port-with-byte-enables">Write port with byte enables</a> could be used in conjunction with any
+of the simple dual port (SDP) models.  In general if a hardware memory definition does not support a
+given configuration, additional logic will be instantiated to guarantee behaviour is consistent with
+simulation.</p>
+<p>See also: <a class="reference external" href="https://github.com/YosysHQ/yosys/blob/master/passes/memory/memlib.md">passes/memory/memlib.md</a></p>
+<section id="additional-notes">
+<h2><span class="section-number">10.1. </span>Additional notes<a class="headerlink" href="#additional-notes" title="Permalink to this heading"></a></h2>
+<section id="memory-kind-selection">
+<h3><span class="section-number">10.1.1. </span>Memory kind selection<a class="headerlink" href="#memory-kind-selection" title="Permalink to this heading"></a></h3>
+<p>The memory inference code will automatically pick target memory primitive based on memory geometry
+and features used.  Depending on the target, there can be up to four memory primitive classes
+available for selection:</p>
+<ul class="simple">
+<li><p>FF RAM (aka logic): no hardware primitive used, memory lowered to a bunch of FFs and multiplexers</p>
+<ul>
+<li><p>Can handle arbitrary number of write ports, as long as all write ports are in the same clock domain</p></li>
+<li><p>Can handle arbitrary number and kind of read ports</p></li>
+</ul>
+</li>
+<li><p>LUT RAM (aka distributed RAM): uses LUT storage as RAM</p>
+<ul>
+<li><p>Supported on most FPGAs (with notable exception of ice40)</p></li>
+<li><p>Usually has one synchronous write port, one or more asynchronous read ports</p></li>
+<li><p>Small</p></li>
+<li><p>Will never be used for ROMs (lowering to plain LUTs is always better)</p></li>
+</ul>
+</li>
+<li><p>Block RAM: dedicated memory tiles</p>
+<ul>
+<li><p>Supported on basically all FPGAs</p></li>
+<li><p>Supports only synchronous reads</p></li>
+<li><p>Two ports with separate clocks</p></li>
+<li><p>Usually supports true dual port (with notable exception of ice40 that only supports SDP)</p></li>
+<li><p>Usually supports asymmetric memories and per-byte write enables</p></li>
+<li><p>Several kilobits in size</p></li>
+</ul>
+</li>
+<li><p>Huge RAM:</p>
+<ul>
+<li><p>Only supported on several targets:</p>
+<ul>
+<li><p>Some Xilinx UltraScale devices (UltraRAM)</p>
+<ul>
+<li><p>Two ports, both with mutually exclusive synchronous read and write</p></li>
+<li><p>Single clock</p></li>
+<li><p>Initial data must be all-0</p></li>
+</ul>
+</li>
+<li><p>Some ice40 devices (SPRAM)</p>
+<ul>
+<li><p>Single port with mutually exclusive synchronous read and write</p></li>
+<li><p>Does not support initial data</p></li>
+</ul>
+</li>
+<li><p>Nexus (large RAM)</p>
+<ul>
+<li><p>Two ports, both with mutually exclusive synchronous read and write</p></li>
+<li><p>Single clock</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Will not be automatically selected by memory inference code, needs explicit opt-in via
+ram_style attribute</p></li>
+</ul>
+</li>
+</ul>
+<p>In general, you can expect the automatic selection process to work roughly like this:</p>
+<ul class="simple">
+<li><p>If any read port is asynchronous, only LUT RAM (or FF RAM) can be used.</p></li>
+<li><p>If there is more than one write port, only block RAM can be used, and this needs to be a
+hardware-supported true dual port pattern</p>
+<ul>
+<li><p>… unless all write ports are in the same clock domain, in which case FF RAM can also be used,
+but this is generally not what you want for anything but really small memories</p></li>
+</ul>
+</li>
+<li><p>Otherwise, either FF RAM, LUT RAM, or block RAM will be used, depending on memory size</p></li>
+</ul>
+<p>This process can be overridden by attaching a ram_style attribute to the memory:</p>
+<ul class="simple">
+<li><p><cite>(* ram_style = “logic” *)</cite> selects FF RAM</p></li>
+<li><p><cite>(* ram_style = “distributed” *)</cite> selects LUT RAM</p></li>
+<li><p><cite>(* ram_style = “block” *)</cite> selects block RAM</p></li>
+<li><p><cite>(* ram_style = “huge” *)</cite> selects huge RAM</p></li>
+</ul>
+<p>It is an error if this override cannot be realized for the given target.</p>
+<p>Many alternate spellings of the attribute are also accepted, for compatibility with other software.</p>
+</section>
+<section id="initial-data">
+<h3><span class="section-number">10.1.2. </span>Initial data<a class="headerlink" href="#initial-data" title="Permalink to this heading"></a></h3>
+<p>Most FPGA targets support initializing all kinds of memory to user-provided values.  If explicit
+initialization is not used the initial memory value is undefined.  Initial data can be provided by
+either initial statements writing memory cells one by one of <code class="docutils literal notranslate"><span class="pre">$readmemh</span></code> or <code class="docutils literal notranslate"><span class="pre">$readmemb</span></code> system
+tasks.  For an example pattern, see <a class="reference internal" href="#synchronous-read-port-with-initial-value">Synchronous read port with initial value</a>.</p>
+</section>
+<section id="write-port-with-byte-enables">
+<h3><span class="section-number">10.1.3. </span>Write port with byte enables<a class="headerlink" href="#write-port-with-byte-enables" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Byte enables can be used with any supported pattern</p></li>
+<li><p>To ensure that multiple writes will be merged into one port, they need to have disjoint bit
+ranges, have the same address, and the same clock</p></li>
+<li><p>Any write enable granularity will be accepted (down to per-bit write enables), but using smaller
+granularity than natively supported by the target is very likely to be inefficient (eg. using
+4-bit bytes on ECP5 will result in either padding the bytes with 5 dummy bits to native 9-bit
+units or splitting the RAM into two block RAMs)</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">0</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">][</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">1</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">][</span><span class="mh">15</span><span class="o">:</span><span class="mh">8</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">8</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">2</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">][</span><span class="mh">23</span><span class="o">:</span><span class="mh">16</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">23</span><span class="o">:</span><span class="mh">16</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">3</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">][</span><span class="mh">31</span><span class="o">:</span><span class="mh">24</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">24</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="simple-dual-port-sdp-memory-patterns">
+<h2><span class="section-number">10.2. </span>Simple dual port (SDP) memory patterns<a class="headerlink" href="#simple-dual-port-sdp-memory-patterns" title="Permalink to this heading"></a></h2>
+<section id="asynchronous-read-sdp">
+<h3><span class="section-number">10.2.1. </span>Asynchronous-read SDP<a class="headerlink" href="#asynchronous-read-sdp" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>This will result in LUT RAM on supported targets</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-sdp-with-clock-domain-crossing">
+<h3><span class="section-number">10.2.2. </span>Synchronous SDP with clock domain crossing<a class="headerlink" href="#synchronous-sdp-with-clock-domain-crossing" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Will result in block RAM or LUT RAM depending on size</p></li>
+<li><p>No behavior guarantees in case of simultaneous read and write to the same address</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">write_clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">read_clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-sdp-read-first">
+<h3><span class="section-number">10.2.3. </span>Synchronous SDP read first<a class="headerlink" href="#synchronous-sdp-read-first" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>The read and write parts can be in the same or different processes.</p></li>
+<li><p>Will result in block RAM or LUT RAM depending on size</p></li>
+<li><p>As long as the same clock is used for both, yosys will ensure read-first behavior.  This may
+require extra circuitry on some targets for block RAM.  If this is not necessary, use one of the
+patterns below.</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-sdp-with-undefined-collision-behavior">
+<h3><span class="section-number">10.2.4. </span>Synchronous SDP with undefined collision behavior<a class="headerlink" href="#synchronous-sdp-with-undefined-collision-behavior" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Like above, but the read value is undefined when read and write ports target the same address in
+the same cycle</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">        </span><span class="c1">// 👇 this if block 👇</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">read_addr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">write_addr</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="m">&#39;x</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Or below, using the no_rw_check attribute</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">no_rw_check</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"></span>
+<span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-sdp-with-write-first-behavior">
+<h3><span class="section-number">10.2.5. </span>Synchronous SDP with write-first behavior<a class="headerlink" href="#synchronous-sdp-with-write-first-behavior" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Will result in block RAM or LUT RAM depending on size</p></li>
+<li><p>May use additional circuitry for block RAM if write-first is not natively supported. Will always
+use additional circuitry for LUT RAM.</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="n">read_addr</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">write_addr</span><span class="p">)</span><span class="w"></span>
+<span class="w">                        </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-sdp-with-write-first-behavior-alternate-pattern">
+<h3><span class="section-number">10.2.6. </span>Synchronous SDP with write-first behavior (alternate pattern)<a class="headerlink" href="#synchronous-sdp-with-write-first-behavior-alternate-pattern" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>This pattern is supported for compatibility, but is much less flexible than the above</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">read_addr_reg</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">read_addr</span><span class="p">;</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr_reg</span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="single-port-ram-memory-patterns">
+<h2><span class="section-number">10.3. </span>Single-port RAM memory patterns<a class="headerlink" href="#single-port-ram-memory-patterns" title="Permalink to this heading"></a></h2>
+<section id="asynchronous-read-single-port-ram">
+<h3><span class="section-number">10.3.1. </span>Asynchronous-read single-port RAM<a class="headerlink" href="#asynchronous-read-single-port-ram" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Will result in single-port LUT RAM on supported targets</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-single-port-ram-with-mutually-exclusive-read-write">
+<h3><span class="section-number">10.3.2. </span>Synchronous single-port RAM with mutually exclusive read/write<a class="headerlink" href="#synchronous-single-port-ram-with-mutually-exclusive-read-write" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Will result in single-port block RAM or LUT RAM depending on size</p></li>
+<li><p>This is the correct pattern to infer ice40 SPRAM (with manual ram_style selection)</p></li>
+<li><p>On targets that don’t support read/write block RAM ports (eg. ice40), will result in SDP block RAM instead</p></li>
+<li><p>For block RAM, will use “NO_CHANGE” mode if available</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-single-port-ram-with-read-first-behavior">
+<h3><span class="section-number">10.3.3. </span>Synchronous single-port RAM with read-first behavior<a class="headerlink" href="#synchronous-single-port-ram-with-read-first-behavior" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Will only result in single-port block RAM when read-first behavior is natively supported;
+otherwise, SDP RAM with additional circuitry will be used</p></li>
+<li><p>Many targets (Xilinx, ECP5, …) can only natively support read-first/write-first single-port RAM
+(or TDP RAM) where the write_enable signal implies the read_enable signal (ie. can never write
+without reading). The memory inference code will run a simple SAT solver on the control signals to
+determine if this is the case, and insert emulation circuitry if it cannot be easily proven.</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-single-port-ram-with-write-first-behavior">
+<h3><span class="section-number">10.3.4. </span>Synchronous single-port RAM with write-first behavior<a class="headerlink" href="#synchronous-single-port-ram-with-write-first-behavior" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Will result in single-port block RAM or LUT RAM when supported</p></li>
+<li><p>Block RAMs will require extra circuitry if write-first behavior not natively supported</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                        </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="k">else</span><span class="w"></span>
+<span class="w">                        </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-read-port-with-initial-value">
+<h3><span class="section-number">10.3.5. </span>Synchronous read port with initial value<a class="headerlink" href="#synchronous-read-port-with-initial-value" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Initial read port values can be combined with any other supported pattern</p></li>
+<li><p>If block RAM is used and initial read port values are not natively supported by the target, small
+emulation circuit will be inserted</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+<span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">initial</span><span class="w"> </span><span class="n">read_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">&#39;h1234</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="read-register-reset-patterns">
+<h2><span class="section-number">10.4. </span>Read register reset patterns<a class="headerlink" href="#read-register-reset-patterns" title="Permalink to this heading"></a></h2>
+<p>Resets can be combined with any other supported pattern (except that synchronous reset and
+asynchronous reset cannot both be used on a single read port).  If block RAM is used and the
+selected reset (synchronous or asynchronous) is used but not natively supported by the target, small
+emulation circuitry will be inserted.</p>
+<section id="synchronous-reset-reset-priority-over-enable">
+<h3><span class="section-number">10.4.1. </span>Synchronous reset, reset priority over enable<a class="headerlink" href="#synchronous-reset-reset-priority-over-enable" title="Permalink to this heading"></a></h3>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_reset</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="p">{</span><span class="n">sval</span><span class="p">};</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-reset-enable-priority-over-reset">
+<h3><span class="section-number">10.4.2. </span>Synchronous reset, enable priority over reset<a class="headerlink" href="#synchronous-reset-enable-priority-over-reset" title="Permalink to this heading"></a></h3>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_reset</span><span class="p">)</span><span class="w"></span>
+<span class="w">                        </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">&#39;h1234</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="k">else</span><span class="w"></span>
+<span class="w">                        </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="synchronous-read-port-with-asynchronous-reset">
+<h3><span class="section-number">10.4.3. </span>Synchronous read port with asynchronous reset<a class="headerlink" href="#synchronous-read-port-with-asynchronous-reset" title="Permalink to this heading"></a></h3>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">,</span><span class="w"> </span><span class="k">posedge</span><span class="w"> </span><span class="n">reset_read</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">reset_read</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mh">&#39;h1234</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="asymmetric-memory-patterns">
+<h2><span class="section-number">10.5. </span>Asymmetric memory patterns<a class="headerlink" href="#asymmetric-memory-patterns" title="Permalink to this heading"></a></h2>
+<p>To construct an asymmetric memory (memory with read/write ports of differing widths):</p>
+<ul class="simple">
+<li><p>Declare the memory with the width of the narrowest intended port</p></li>
+<li><p>Split all wide ports into multiple narrow ports</p></li>
+<li><p>To ensure the wide ports will be correctly merged:</p>
+<ul>
+<li><p>For the address, use a concatenation of actual address in the high bits and a constant in the
+low bits</p></li>
+<li><p>Ensure the actual address is identical for all ports belonging to the wide port</p></li>
+<li><p>Ensure that clock is identical</p></li>
+<li><p>For read ports, ensure that enable/reset signals are identical (for write ports, the enable
+signal may vary — this will result in using the byte enable functionality)</p></li>
+</ul>
+</li>
+</ul>
+<p>Asymmetric memory is supported on all targets, but may require emulation circuitry where not
+natively supported.  Note that when the memory is larger than the underlying block RAM primitive,
+hardware asymmetric memory support is likely not to be used even if present as it is more expensive.</p>
+<section id="wide-synchronous-read-port">
+<h3><span class="section-number">10.5.1. </span>Wide synchronous read port<a class="headerlink" href="#wide-synchronous-read-port" title="Permalink to this heading"></a></h3>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">0</span><span class="o">:</span><span class="mh">255</span><span class="p">];</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_addr</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">5</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_addr</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b00</span><span class="p">}];</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">8</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b01</span><span class="p">}];</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="p">[</span><span class="mh">23</span><span class="o">:</span><span class="mh">16</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b10</span><span class="p">}];</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">24</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b11</span><span class="p">}];</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="wide-asynchronous-read-port">
+<h3><span class="section-number">10.5.2. </span>Wide asynchronous read port<a class="headerlink" href="#wide-asynchronous-read-port" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Note: the only target natively supporting this pattern is Xilinx UltraScale</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">0</span><span class="o">:</span><span class="mh">511</span><span class="p">];</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">8</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_addr</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">5</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_addr</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">63</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b000</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">8</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b001</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">23</span><span class="o">:</span><span class="mh">16</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b010</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">24</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b011</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">39</span><span class="o">:</span><span class="mh">32</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b100</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">47</span><span class="o">:</span><span class="mh">40</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b101</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">55</span><span class="o">:</span><span class="mh">48</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b110</span><span class="p">}];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="p">[</span><span class="mh">63</span><span class="o">:</span><span class="mh">56</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[{</span><span class="n">read_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">3</span><span class="mb">&#39;b111</span><span class="p">}];</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="wide-write-port">
+<h3><span class="section-number">10.5.3. </span>Wide write port<a class="headerlink" href="#wide-write-port" title="Permalink to this heading"></a></h3>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">0</span><span class="o">:</span><span class="mh">255</span><span class="p">];</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">5</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_addr</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_addr</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">read_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">0</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[{</span><span class="n">write_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b00</span><span class="p">}]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">1</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[{</span><span class="n">write_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b01</span><span class="p">}]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">15</span><span class="o">:</span><span class="mh">8</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">2</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[{</span><span class="n">write_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b10</span><span class="p">}]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">23</span><span class="o">:</span><span class="mh">16</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">[</span><span class="mh">3</span><span class="p">])</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[{</span><span class="n">write_addr</span><span class="p">,</span><span class="w"> </span><span class="mh">2</span><span class="mb">&#39;b11</span><span class="p">}]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">24</span><span class="p">];</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="true-dual-port-tdp-patterns">
+<h2><span class="section-number">10.6. </span>True dual port (TDP) patterns<a class="headerlink" href="#true-dual-port-tdp-patterns" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Many different variations of true dual port memory can be created by combining two single-port RAM
+patterns on the same memory</p></li>
+<li><p>When TDP memory is used, memory inference code has much less maneuver room to create requested
+semantics compared to individual single-port patterns (which can end up lowered to SDP memory
+where necessary) — supported patterns depend strongly on the target</p></li>
+<li><p>In particular, when both ports have the same clock, it’s likely that “undefined collision” mode
+needs to be manually selected to enable TDP memory inference</p></li>
+<li><p>The examples below are non-exhaustive — many more combinations of port types are possible</p></li>
+<li><p>Note: if two write ports are in the same process, this defines a priority relation between them
+(if both ports are active in the same clock, the later one wins). On almost all targets, this will
+result in a bit of extra circuitry to ensure the priority semantics. If this is not what you want,
+put them in separate processes.</p>
+<ul>
+<li><p>Priority is not supported when using the verific front end and any priority semantics are ignored.</p></li>
+</ul>
+</li>
+</ul>
+<section id="tdp-with-different-clocks-exclusive-read-write">
+<h3><span class="section-number">10.6.1. </span>TDP with different clocks, exclusive read/write<a class="headerlink" href="#tdp-with-different-clocks-exclusive-read-write" title="Permalink to this heading"></a></h3>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk_a</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable_a</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_a</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data_a</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable_a</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data_a</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_a</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk_b</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable_b</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_b</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data_b</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable_b</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data_b</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_b</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="tdp-with-same-clock-read-first-behavior">
+<h3><span class="section-number">10.6.2. </span>TDP with same clock, read-first behavior<a class="headerlink" href="#tdp-with-same-clock-read-first-behavior" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>This requires hardware inter-port read-first behavior, and will only work on some targets (Xilinx, Nexus)</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable_a</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_a</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data_a</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable_a</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data_a</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_a</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable_b</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_b</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data_b</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable_b</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data_b</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">addr_b</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="tdp-with-multiple-read-ports">
+<h3><span class="section-number">10.6.3. </span>TDP with multiple read ports<a class="headerlink" href="#tdp-with-multiple-read-ports" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>The combination of a single write port with an arbitrary amount of read ports is supported on all
+targets — if a multi-read port primitive is available (like Xilinx RAM64M), it’ll be used as
+appropriate.  Otherwise, the memory will be automatically split into multiple primitives.</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">0</span><span class="o">:</span><span class="mh">31</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr_a</span><span class="p">];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data_b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr_b</span><span class="p">];</span><span class="w"></span>
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data_c</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr_c</span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="not-yet-supported-patterns">
+<h2><span class="section-number">10.7. </span>Not yet supported patterns<a class="headerlink" href="#not-yet-supported-patterns" title="Permalink to this heading"></a></h2>
+<section id="synchronous-sdp-with-write-first-behavior-via-blocking-assignments">
+<h3><span class="section-number">10.7.1. </span>Synchronous SDP with write-first behavior via blocking assignments<a class="headerlink" href="#synchronous-sdp-with-write-first-behavior-via-blocking-assignments" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Would require modifications to the Yosys Verilog frontend.</p></li>
+<li><p>Use <a class="reference internal" href="#synchronous-sdp-with-write-first-behavior">Synchronous SDP with write-first behavior</a> instead</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="asymmetric-memories-via-part-selection">
+<h3><span class="section-number">10.7.2. </span>Asymmetric memories via part selection<a class="headerlink" href="#asymmetric-memories-via-part-selection" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Would require major changes to the Verilog frontend.</p></li>
+<li><p>Build wide ports out of narrow ports instead (see <a class="reference internal" href="#wide-synchronous-read-port">Wide synchronous read port</a>)</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">31</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">byte_lane</span><span class="p">;</span><span class="w"></span>
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">][</span><span class="n">byte_lane</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mh">8</span><span class="w"> </span><span class="o">+:</span><span class="w"> </span><span class="mh">8</span><span class="p">]</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">read_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">read_data</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="undesired-patterns">
+<h2><span class="section-number">10.8. </span>Undesired patterns<a class="headerlink" href="#undesired-patterns" title="Permalink to this heading"></a></h2>
+<section id="asynchronous-writes">
+<h3><span class="section-number">10.8.1. </span>Asynchronous writes<a class="headerlink" href="#asynchronous-writes" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Not supported in modern FPGAs</p></li>
+<li><p>Not supported in yosys code anyhow</p></li>
+</ul>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">DATA_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">mem</span><span class="w"> </span><span class="p">[</span><span class="mh">2</span><span class="o">**</span><span class="n">ADDR_WIDTH</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">0</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@</span><span class="o">*</span><span class="w"> </span><span class="k">begin</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">write_enable</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">mem</span><span class="p">[</span><span class="n">write_addr</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">write_data</span><span class="p">;</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">assign</span><span class="w"> </span><span class="n">read_data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">mem</span><span class="p">[</span><span class="n">read_addr</span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_Techmap.html" class="btn btn-neutral float-left" title="9. Technology mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="appendix/CHAPTER_Auxlibs.html" class="btn btn-neutral float-right" title="Auxiliary libraries" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

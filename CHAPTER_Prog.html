@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6. Programming Yosys extensions &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="7. The Verilog and AST frontends" href="CHAPTER_Verilog.html" />
+    <link rel="prev" title="5. Internal cell library" href="CHAPTER_CellLib.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">6. Programming Yosys extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#guidelines">6.1. Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-stubsnets-example-module">6.2. The “stubsnets” example module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">6. </span>Programming Yosys extensions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CHAPTER_Prog.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="programming-yosys-extensions">
+<span id="chapter-prog"></span><h1><span class="section-number">6. </span>Programming Yosys extensions<a class="headerlink" href="#programming-yosys-extensions" title="Permalink to this heading"></a></h1>
+<p>This chapter contains some bits and pieces of information about
+programming yosys extensions. Also consult the section on programming in
+the “Yosys Presentation” (can be downloaded from the Yosys website as
+PDF) and don’t be afraid to ask questions on the YosysHQ Slack.</p>
+<section id="guidelines">
+<h2><span class="section-number">6.1. </span>Guidelines<a class="headerlink" href="#guidelines" title="Permalink to this heading"></a></h2>
+<p>The guidelines directory contains notes on various aspects of Yosys
+development. The files GettingStarted and CodingStyle may be of
+particular interest, and are reproduced here.</p>
+</section>
+<section id="the-stubsnets-example-module">
+<h2><span class="section-number">6.2. </span>The “stubsnets” example module<a class="headerlink" href="#the-stubsnets-example-module" title="Permalink to this heading"></a></h2>
+<p>The following is the complete code of the “stubsnets” example module. It
+is included in the Yosys source distribution as
+docs/source/CHAPTER_Prog/stubnets.cc.</p>
+<div class="literal-block-wrapper docutils container" id="id1">
+<div class="code-block-caption"><span class="caption-number">Listing 6.1 </span><span class="caption-text">docs/source/CHAPTER_Prog/stubnets.cc</span><a class="headerlink" href="#id1" title="Permalink to this code"></a></div>
+<div class="highlight-c++ notranslate"><div class="highlight"><pre><span></span><span class="linenos">  1</span><span class="c1">// This is free and unencumbered software released into the public domain.</span>
+<span class="linenos">  2</span><span class="c1">//</span>
+<span class="linenos">  3</span><span class="c1">// Anyone is free to copy, modify, publish, use, compile, sell, or</span>
+<span class="linenos">  4</span><span class="c1">// distribute this software, either in source code form or as a compiled</span>
+<span class="linenos">  5</span><span class="c1">// binary, for any purpose, commercial or non-commercial, and by any</span>
+<span class="linenos">  6</span><span class="c1">// means.</span>
+<span class="linenos">  7</span>
+<span class="linenos">  8</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;kernel/yosys.h&quot;</span><span class="cp"></span>
+<span class="linenos">  9</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;kernel/sigtools.h&quot;</span><span class="cp"></span>
+<span class="linenos"> 10</span>
+<span class="linenos"> 11</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;string&gt;</span><span class="cp"></span>
+<span class="linenos"> 12</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;map&gt;</span><span class="cp"></span>
+<span class="linenos"> 13</span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;set&gt;</span><span class="cp"></span>
+<span class="linenos"> 14</span>
+<span class="linenos"> 15</span><span class="n">USING_YOSYS_NAMESPACE</span><span class="w"></span>
+<span class="linenos"> 16</span><span class="n">PRIVATE_NAMESPACE_BEGIN</span><span class="w"></span>
+<span class="linenos"> 17</span>
+<span class="linenos"> 18</span><span class="c1">// this function is called for each module in the design</span>
+<span class="linenos"> 19</span><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">find_stub_nets</span><span class="p">(</span><span class="n">RTLIL</span><span class="o">::</span><span class="n">Design</span><span class="w"> </span><span class="o">*</span><span class="n">design</span><span class="p">,</span><span class="w"> </span><span class="n">RTLIL</span><span class="o">::</span><span class="n">Module</span><span class="w"> </span><span class="o">*</span><span class="k">module</span><span class="p">,</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">report_bits</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 20</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 21</span><span class="w">	</span><span class="c1">// use a SigMap to convert nets to a unique representation</span>
+<span class="linenos"> 22</span><span class="w">	</span><span class="n">SigMap</span><span class="w"> </span><span class="nf">sigmap</span><span class="p">(</span><span class="k">module</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 23</span>
+<span class="linenos"> 24</span><span class="w">	</span><span class="c1">// count how many times a single-bit signal is used</span>
+<span class="linenos"> 25</span><span class="w">	</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">RTLIL</span><span class="o">::</span><span class="n">SigBit</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">bit_usage_count</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 26</span>
+<span class="linenos"> 27</span><span class="w">	</span><span class="c1">// count output lines for this module (needed only for summary output at the end)</span>
+<span class="linenos"> 28</span><span class="w">	</span><span class="kt">int</span><span class="w"> </span><span class="n">line_count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 29</span>
+<span class="linenos"> 30</span><span class="w">	</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;Looking for stub wires in module %s:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RTLIL</span><span class="o">::</span><span class="n">id2cstr</span><span class="p">(</span><span class="k">module</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span><span class="w"></span>
+<span class="linenos"> 31</span>
+<span class="linenos"> 32</span><span class="w">	</span><span class="c1">// For all ports on all cells</span>
+<span class="linenos"> 33</span><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">cell_iter</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">module</span><span class="o">-&gt;</span><span class="n">cells_</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 34</span><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">conn</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">cell_iter</span><span class="p">.</span><span class="n">second</span><span class="o">-&gt;</span><span class="n">connections</span><span class="p">())</span><span class="w"></span>
+<span class="linenos"> 35</span><span class="w">	</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 36</span><span class="w">		</span><span class="c1">// Get the signals on the port</span>
+<span class="linenos"> 37</span><span class="w">		</span><span class="c1">// (use sigmap to get a uniqe signal name)</span>
+<span class="linenos"> 38</span><span class="w">		</span><span class="n">RTLIL</span><span class="o">::</span><span class="n">SigSpec</span><span class="w"> </span><span class="n">sig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sigmap</span><span class="p">(</span><span class="n">conn</span><span class="p">.</span><span class="n">second</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 39</span>
+<span class="linenos"> 40</span><span class="w">		</span><span class="c1">// add each bit to bit_usage_count, unless it is a constant</span>
+<span class="linenos"> 41</span><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bit</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">sig</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 42</span><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bit</span><span class="p">.</span><span class="n">wire</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 43</span><span class="w">				</span><span class="n">bit_usage_count</span><span class="p">[</span><span class="n">bit</span><span class="p">]</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 44</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 45</span>
+<span class="linenos"> 46</span><span class="w">	</span><span class="c1">// for each wire in the module</span>
+<span class="linenos"> 47</span><span class="w">	</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">wire_iter</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">module</span><span class="o">-&gt;</span><span class="n">wires_</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 48</span><span class="w">	</span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 49</span><span class="w">		</span><span class="n">RTLIL</span><span class="o">::</span><span class="n">Wire</span><span class="w"> </span><span class="o">*</span><span class="n">wire</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wire_iter</span><span class="p">.</span><span class="n">second</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 50</span>
+<span class="linenos"> 51</span><span class="w">		</span><span class="c1">// .. but only selected wires</span>
+<span class="linenos"> 52</span><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">design</span><span class="o">-&gt;</span><span class="n">selected</span><span class="p">(</span><span class="k">module</span><span class="p">,</span><span class="w"> </span><span class="n">wire</span><span class="p">))</span><span class="w"></span>
+<span class="linenos"> 53</span><span class="w">			</span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 54</span>
+<span class="linenos"> 55</span><span class="w">		</span><span class="c1">// add +1 usage if this wire actually is a port</span>
+<span class="linenos"> 56</span><span class="w">		</span><span class="kt">int</span><span class="w"> </span><span class="n">usage_offset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">wire</span><span class="o">-&gt;</span><span class="n">port_id</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 57</span>
+<span class="linenos"> 58</span><span class="w">		</span><span class="c1">// we will record which bits of the (possibly multi-bit) wire are stub signals</span>
+<span class="linenos"> 59</span><span class="w">		</span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">stub_bits</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 60</span>
+<span class="linenos"> 61</span><span class="w">		</span><span class="c1">// get a signal description for this wire and split it into separate bits</span>
+<span class="linenos"> 62</span><span class="w">		</span><span class="n">RTLIL</span><span class="o">::</span><span class="n">SigSpec</span><span class="w"> </span><span class="n">sig</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sigmap</span><span class="p">(</span><span class="n">wire</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 63</span>
+<span class="linenos"> 64</span><span class="w">		</span><span class="c1">// for each bit (unless it is a constant):</span>
+<span class="linenos"> 65</span><span class="w">		</span><span class="c1">// check if it is used at least two times and add to stub_bits otherwise</span>
+<span class="linenos"> 66</span><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">GetSize</span><span class="p">(</span><span class="n">sig</span><span class="p">);</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 67</span><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">wire</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="nb">NULL</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="p">(</span><span class="n">bit_usage_count</span><span class="p">[</span><span class="n">sig</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">usage_offset</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 68</span><span class="w">				</span><span class="n">stub_bits</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 69</span>
+<span class="linenos"> 70</span><span class="w">		</span><span class="c1">// continue if no stub bits found</span>
+<span class="linenos"> 71</span><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">stub_bits</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 72</span><span class="w">			</span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 73</span>
+<span class="linenos"> 74</span><span class="w">		</span><span class="c1">// report stub bits and/or stub wires, don&#39;t report single bits</span>
+<span class="linenos"> 75</span><span class="w">		</span><span class="c1">// if called with report_bits set to false.</span>
+<span class="linenos"> 76</span><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">GetSize</span><span class="p">(</span><span class="n">stub_bits</span><span class="p">)</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">GetSize</span><span class="p">(</span><span class="n">sig</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 77</span><span class="w">			</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;  found stub wire: %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RTLIL</span><span class="o">::</span><span class="n">id2cstr</span><span class="p">(</span><span class="n">wire</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span><span class="w"></span>
+<span class="linenos"> 78</span><span class="w">		</span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos"> 79</span><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">report_bits</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 80</span><span class="w">				</span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 81</span><span class="w">			</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;  found wire with stub bits: %s [&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">RTLIL</span><span class="o">::</span><span class="n">id2cstr</span><span class="p">(</span><span class="n">wire</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">));</span><span class="w"></span>
+<span class="linenos"> 82</span><span class="w">			</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">bit</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">stub_bits</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 83</span><span class="w">				</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;%s%d&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bit</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">*</span><span class="n">stub_bits</span><span class="p">.</span><span class="n">begin</span><span class="p">()</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s">&quot;&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;, &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">bit</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 84</span><span class="w">			</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;]</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 85</span><span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 86</span>
+<span class="linenos"> 87</span><span class="w">		</span><span class="c1">// we have outputted a line, increment summary counter</span>
+<span class="linenos"> 88</span><span class="w">		</span><span class="n">line_count</span><span class="o">++</span><span class="p">;</span><span class="w"></span>
+<span class="linenos"> 89</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 90</span>
+<span class="linenos"> 91</span><span class="w">	</span><span class="c1">// report summary</span>
+<span class="linenos"> 92</span><span class="w">	</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">report_bits</span><span class="p">)</span><span class="w"></span>
+<span class="linenos"> 93</span><span class="w">		</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;  found %d stub wires or wires with stub bits.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">line_count</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 94</span><span class="w">	</span><span class="k">else</span><span class="w"></span>
+<span class="linenos"> 95</span><span class="w">		</span><span class="n">log</span><span class="p">(</span><span class="s">&quot;  found %d stub wires.</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">line_count</span><span class="p">);</span><span class="w"></span>
+<span class="linenos"> 96</span><span class="p">}</span><span class="w"></span>
+<span class="linenos"> 97</span>
+<span class="linenos"> 98</span><span class="c1">// each pass contains a singleton object that is derived from Pass</span>
+<span class="linenos"> 99</span><span class="k">struct</span><span class="w"> </span><span class="nc">StubnetsPass</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Pass</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">100</span><span class="w">	</span><span class="n">StubnetsPass</span><span class="p">()</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Pass</span><span class="p">(</span><span class="s">&quot;stubnets&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="linenos">101</span><span class="w">	</span><span class="kt">void</span><span class="w"> </span><span class="n">execute</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="w"> </span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">RTLIL</span><span class="o">::</span><span class="n">Design</span><span class="w"> </span><span class="o">*</span><span class="n">design</span><span class="p">)</span><span class="w"> </span><span class="k">override</span><span class="w"></span>
+<span class="linenos">102</span><span class="w">	</span><span class="p">{</span><span class="w"></span>
+<span class="linenos">103</span><span class="w">		</span><span class="c1">// variables to mirror information from passed options</span>
+<span class="linenos">104</span><span class="w">		</span><span class="kt">bool</span><span class="w"> </span><span class="n">report_bits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">105</span>
+<span class="linenos">106</span><span class="w">		</span><span class="n">log_header</span><span class="p">(</span><span class="n">design</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Executing STUBNETS pass (find stub nets).</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">107</span>
+<span class="linenos">108</span><span class="w">		</span><span class="c1">// parse options</span>
+<span class="linenos">109</span><span class="w">		</span><span class="kt">size_t</span><span class="w"> </span><span class="n">argidx</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">110</span><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">argidx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="n">argidx</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">args</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">argidx</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">111</span><span class="w">			</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">arg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">args</span><span class="p">[</span><span class="n">argidx</span><span class="p">];</span><span class="w"></span>
+<span class="linenos">112</span><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">arg</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s">&quot;-report_bits&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="linenos">113</span><span class="w">				</span><span class="n">report_bits</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">114</span><span class="w">				</span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">115</span><span class="w">			</span><span class="p">}</span><span class="w"></span>
+<span class="linenos">116</span><span class="w">			</span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">117</span><span class="w">		</span><span class="p">}</span><span class="w"></span>
+<span class="linenos">118</span>
+<span class="linenos">119</span><span class="w">		</span><span class="c1">// handle extra options (e.g. selection)</span>
+<span class="linenos">120</span><span class="w">		</span><span class="n">extra_args</span><span class="p">(</span><span class="n">args</span><span class="p">,</span><span class="w"> </span><span class="n">argidx</span><span class="p">,</span><span class="w"> </span><span class="n">design</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">121</span>
+<span class="linenos">122</span><span class="w">		</span><span class="c1">// call find_stub_nets() for each module that is either</span>
+<span class="linenos">123</span><span class="w">		</span><span class="c1">// selected as a whole or contains selected objects.</span>
+<span class="linenos">124</span><span class="w">		</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="n">it</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">design</span><span class="o">-&gt;</span><span class="n">modules_</span><span class="p">)</span><span class="w"></span>
+<span class="linenos">125</span><span class="w">			</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">design</span><span class="o">-&gt;</span><span class="n">selected_module</span><span class="p">(</span><span class="n">it</span><span class="p">.</span><span class="n">first</span><span class="p">))</span><span class="w"></span>
+<span class="linenos">126</span><span class="w">				</span><span class="n">find_stub_nets</span><span class="p">(</span><span class="n">design</span><span class="p">,</span><span class="w"> </span><span class="n">it</span><span class="p">.</span><span class="n">second</span><span class="p">,</span><span class="w"> </span><span class="n">report_bits</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">127</span><span class="w">	</span><span class="p">}</span><span class="w"></span>
+<span class="linenos">128</span><span class="p">}</span><span class="w"> </span><span class="n">StubnetsPass</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">129</span>
+<span class="linenos">130</span><span class="n">PRIVATE_NAMESPACE_END</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-number">Listing 6.2 </span><span class="caption-text">docs/source/CHAPTER_Prog/Makefile</span><a class="headerlink" href="#id2" title="Permalink to this code"></a></div>
+<div class="highlight-makefile notranslate"><div class="highlight"><pre><span></span><span class="linenos"> 1</span><span class="nf">test</span><span class="o">:</span> <span class="n">stubnets</span>.<span class="n">so</span>
+<span class="linenos"> 2</span>	yosys -ql test1.log -m ./stubnets.so test.v -p <span class="s2">&quot;stubnets&quot;</span>
+<span class="linenos"> 3</span>	yosys -ql test2.log -m ./stubnets.so test.v -p <span class="s2">&quot;opt; stubnets&quot;</span>
+<span class="linenos"> 4</span>	yosys -ql test3.log -m ./stubnets.so test.v -p <span class="s2">&quot;techmap; opt; stubnets -report_bits&quot;</span>
+<span class="linenos"> 5</span>	tail test1.log test2.log test3.log
+<span class="linenos"> 6</span>
+<span class="linenos"> 7</span><span class="nf">stubnets.so</span><span class="o">:</span> <span class="n">stubnets</span>.<span class="n">cc</span>
+<span class="linenos"> 8</span>	yosys-config --exec --cxx --cxxflags --ldflags -o <span class="nv">$@</span> -shared $^ --ldlibs
+<span class="linenos"> 9</span>
+<span class="linenos">10</span><span class="nf">clean</span><span class="o">:</span>
+<span class="linenos">11</span>	rm -f test1.log test2.log test3.log
+<span class="linenos">12</span>	rm -f stubnets.so stubnets.d
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-number">Listing 6.3 </span><span class="caption-text">docs/source/CHAPTER_Prog/test.v</span><a class="headerlink" href="#id3" title="Permalink to this code"></a></div>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">module</span><span class="w"> </span><span class="n">uut</span><span class="p">(</span><span class="n">in1</span><span class="p">,</span><span class="w"> </span><span class="n">in2</span><span class="p">,</span><span class="w"> </span><span class="n">in3</span><span class="p">,</span><span class="w"> </span><span class="n">out1</span><span class="p">,</span><span class="w"> </span><span class="n">out2</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="mh">8</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">in1</span><span class="p">,</span><span class="w"> </span><span class="n">in2</span><span class="p">,</span><span class="w"> </span><span class="n">in3</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">4</span><span class="k">output</span><span class="w"> </span><span class="p">[</span><span class="mh">8</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">out1</span><span class="p">,</span><span class="w"> </span><span class="n">out2</span><span class="p">;</span><span class="w"></span>
+<span class="linenos">5</span>
+<span class="linenos">6</span><span class="k">assign</span><span class="w"> </span><span class="n">out1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">in1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">in2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">in3</span><span class="w"> </span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="mh">4</span><span class="p">);</span><span class="w"></span>
+<span class="linenos">7</span>
+<span class="linenos">8</span><span class="k">endmodule</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_CellLib.html" class="btn btn-neutral float-left" title="5. Internal cell library" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CHAPTER_Verilog.html" class="btn btn-neutral float-right" title="7. The Verilog and AST frontends" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

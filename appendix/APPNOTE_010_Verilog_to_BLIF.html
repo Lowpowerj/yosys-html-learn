@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>010: Converting Verilog to BLIF page &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="011: Interactive design investigation page" href="APPNOTE_011_Design_Investigation.html" />
+    <link rel="prev" title="RTLIL text representation" href="CHAPTER_TextRtlil.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">010: Converting Verilog to BLIF page</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-a-synthesis-script">Using a synthesis script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-example-the-amber23-armv2a-cpu">Advanced example: The Amber23 ARMv2a CPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#verification-of-the-amber23-cpu">Verification of the Amber23 CPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#limitations">Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">010: Converting Verilog to BLIF page</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/appendix/APPNOTE_010_Verilog_to_BLIF.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="converting-verilog-to-blif-page">
+<h1>010: Converting Verilog to BLIF page<a class="headerlink" href="#converting-verilog-to-blif-page" title="Permalink to this heading"></a></h1>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
+<p>Yosys written in C++ (using features from C++11) and is tested on modern
+Linux. It should compile fine on most UNIX systems with a C++11
+compiler. The README file contains useful information on building Yosys
+and its prerequisites.</p>
+<p>Yosys is a large and feature-rich program with a couple of dependencies.
+It is, however, possible to deactivate some of the dependencies in the
+Makefile, resulting in features in Yosys becoming unavailable. When
+problems with building Yosys are encountered, a user who is only
+interested in the features of Yosys that are discussed in this
+Application Note may deactivate TCL, Qt and MiniSAT support in the
+Makefile and may opt against building yosys-abc.</p>
+<p>This Application Note is based on <a class="reference external" href="https://github.com/YosysHQ/yosys">Yosys GIT</a> <a class="reference external" href="https://github.com/YosysHQ/yosys/tree/e216e0e">Rev. e216e0e</a>  from 2013-11-23.
+The Verilog sources used for the examples are taken from <a class="reference external" href="https://github.com/YosysHQ/yosys-bigsim">yosys-bigsim</a>, a
+collection of real-world designs used for regression testing Yosys.</p>
+</section>
+<section id="getting-started">
+<h2>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this heading"></a></h2>
+<p>We start our tour with the Navré processor from yosys-bigsim. The <a class="reference external" href="http://opencores.org/projects/navre">Navré
+processor</a> is an Open Source AVR clone. It is a single module (softusb_navre)
+in a single design file (softusb_navre.v). It also is using only features that
+map nicely to the BLIF format, for example it only uses synchronous resets.</p>
+<p>Converting softusb_navre.v to softusb_navre.blif could not be easier:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>yosys -o softusb_navre.blif -S softusb_navre.v
+</pre></div>
+</div>
+<p>Behind the scenes Yosys is controlled by synthesis scripts that execute
+commands that operate on Yosys’ internal state. For example, the -o
+softusb_navre.blif option just adds the command write_blif
+softusb_navre.blif to the end of the script. Likewise a file on the
+command line – softusb_navre.v in this case – adds the command
+read_verilog softusb_navre.v to the beginning of the synthesis script.
+In both cases the file type is detected from the file extension.</p>
+<p>Finally the option -S instantiates a built-in default synthesis script.
+Instead of using -S one could also specify the synthesis commands for
+the script on the command line using the -p option, either using
+individual options for each command or by passing one big command string
+with a semicolon-separated list of commands. But in most cases it is
+more convenient to use an actual script file.</p>
+</section>
+<section id="using-a-synthesis-script">
+<h2>Using a synthesis script<a class="headerlink" href="#using-a-synthesis-script" title="Permalink to this heading"></a></h2>
+<p>With a script file we have better control over Yosys. The following
+script file replicates what the command from the last section did:</p>
+<div class="highlight-yoscrypt notranslate"><div class="highlight"><pre><span></span><span class="k">read_verilog</span><span class="w"> </span><span class="n">softusb_navre.v</span><span class="w"></span>
+<span class="k">hierarchy</span><span class="w"></span>
+<span class="k">proc</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">memory</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">techmap</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="w"></span>
+<span class="k">write_blif</span><span class="w"> </span><span class="n">softusb_navre.blif</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The first and last line obviously read the Verilog file and write the
+BLIF file.</p>
+<p>The 2nd line checks the design hierarchy and instantiates parametrized
+versions of the modules in the design, if necessary. In the case of this
+simple design this is a no-op. However, as a general rule a synthesis
+script should always contain this command as first command after reading
+the input files.</p>
+<p>The 3rd line does most of the actual work:</p>
+<ul class="simple">
+<li><p>The command opt is the Yosys’ built-in optimizer. It can perform some
+simple optimizations such as const-folding and removing unconnected
+parts of the design. It is common practice to call opt after each
+major step in the synthesis procedure. In cases where too much
+optimization is not appreciated (for example when analyzing a
+design), it is recommended to call clean instead of opt.</p></li>
+<li><p>The command proc converts processes (Yosys’ internal representation
+of Verilog always- and initial-blocks) to circuits of multiplexers
+and storage elements (various types of flip-flops).</p></li>
+<li><p>The command memory converts Yosys’ internal representations of arrays
+and array accesses to multi-port block memories, and then maps this
+block memories to address decoders and flip-flops, unless the option
+-nomap is used, in which case the multi-port block memories stay in
+the design and can then be mapped to architecture-specific memory
+primitives using other commands.</p></li>
+<li><p>The command techmap turns a high-level circuit with coarse grain
+cells such as wide adders and multipliers to a fine-grain circuit of
+simple logic primitives and single-bit storage elements. The command
+does that by substituting the complex cells by circuits of simpler
+cells. It is possible to provide a custom set of rules for this
+process in the form of a Verilog source file, as we will see in the
+next section.</p></li>
+</ul>
+<p>Now Yosys can be run with the filename of the synthesis script as
+argument:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>yosys softusb_navre.ys
+</pre></div>
+</div>
+<p>Now that we are using a synthesis script we can easily modify how Yosys
+synthesizes the design. The first thing we should customize is the call
+to the hierarchy command:</p>
+<p>Whenever it is known that there are no implicit blackboxes in the
+design, i.e. modules that are referenced but are not defined, the
+hierarchy command should be called with the -check option. This will
+then cause synthesis to fail when implicit blackboxes are found in the
+design.</p>
+<p>The 2nd thing we can improve regarding the hierarchy command is that we
+can tell it the name of the top level module of the design hierarchy. It
+will then automatically remove all modules that are not referenced from
+this top level module.</p>
+<p>For many designs it is also desired to optimize the encodings for the
+finite state machines (FSMs) in the design. The fsm command finds FSMs,
+extracts them, performs some basic optimizations and then generate a
+circuit from the extracted and optimized description. It would also be
+possible to tell the fsm command to leave the FSMs in their extracted
+form, so they can be further processed using custom commands. But in
+this case we don’t want that.</p>
+<p>So now we have the final synthesis script for generating a BLIF file for
+the Navré CPU:</p>
+<div class="highlight-yoscrypt notranslate"><div class="highlight"><pre><span></span><span class="k">read_verilog</span><span class="w"> </span><span class="n">softusb_navre.v</span><span class="w"></span>
+<span class="k">hierarchy</span><span class="w"> </span><span class="na">-check</span><span class="w"> </span><span class="na">-top</span><span class="w"> </span><span class="n">softusb_navre</span><span class="w"></span>
+<span class="k">proc</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">memory</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">fsm</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">techmap</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="w"></span>
+<span class="k">write_blif</span><span class="w"> </span><span class="n">softusb_navre.blif</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-example-the-amber23-armv2a-cpu">
+<h2>Advanced example: The Amber23 ARMv2a CPU<a class="headerlink" href="#advanced-example-the-amber23-armv2a-cpu" title="Permalink to this heading"></a></h2>
+<p>Our 2nd example is the <a class="reference external" href="http://opencores.org/projects/amber">Amber23 ARMv2a CPU</a>. Once again we base our example on
+the Verilog code that is included in <a class="reference external" href="https://github.com/YosysHQ/yosys-bigsim">yosys-bigsim</a>.</p>
+<div class="literal-block-wrapper docutils container" id="amber23-ys">
+<div class="code-block-caption"><span class="caption-number">Listing 1 </span><span class="caption-text"><cite>amber23.ys</cite></span><a class="headerlink" href="#amber23-ys" title="Permalink to this code"></a></div>
+<div class="highlight-yoscrypt notranslate"><div class="highlight"><pre><span></span><span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_alu.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_barrel_shift_fpga.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_barrel_shift.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_cache.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_coprocessor.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_core.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_decode.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_execute.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_fetch.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_multiply.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_ram_register_bank.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_register_bank.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">a23_wishbone.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">generic_sram_byte_en.v</span><span class="w"></span>
+<span class="k">read_verilog</span><span class="w"> </span><span class="n">generic_sram_line_en.v</span><span class="w"></span>
+<span class="k">hierarchy</span><span class="w"> </span><span class="na">-check</span><span class="w"> </span><span class="na">-top</span><span class="w"> </span><span class="n">a23_core</span><span class="w"></span>
+<span class="k">add</span><span class="w"> </span><span class="na">-global_input</span><span class="w"> </span><span class="n">globrst</span><span class="w"> </span><span class="m">1</span><span class="w"></span>
+<span class="k">proc</span><span class="w"> </span><span class="na">-global_arst</span><span class="w"> </span><span class="n">globrst</span><span class="w"></span>
+<span class="k">techmap</span><span class="w"> </span><span class="na">-map</span><span class="w"> </span><span class="n">adff2dff.v</span><span class="w"></span>
+<span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">memory</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">fsm</span><span class="o">;</span><span class="w"> </span><span class="k">opt</span><span class="o">;</span><span class="w"> </span><span class="k">techmap</span><span class="w"></span>
+<span class="k">write_blif</span><span class="w"> </span><span class="n">amber23.blif</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>The problem with this core is that it contains no dedicated reset logic. Instead
+the coding techniques shown in <a class="reference internal" href="#glob-arst"><span class="std std-numref">Listing 2</span></a> are used to define reset
+values for the global asynchronous reset in an FPGA implementation. This design
+can not be expressed in BLIF as it is. Instead we need to use a synthesis script
+that transforms this form to synchronous resets that can be expressed in BLIF.</p>
+<p>(Note that there is no problem if this coding techniques are used to
+model ROM, where the register is initialized using this syntax but is
+never updated otherwise.)</p>
+<p><a class="reference internal" href="#amber23-ys"><span class="std std-numref">Listing 1</span></a> shows the synthesis script for the Amber23 core. In line 17
+the add command is used to add a 1-bit wide global input signal with the name
+globrst. That means that an input with that name is added to each module in the
+design hierarchy and then all module instantiations are altered so that this new
+signal is connected throughout the whole design hierarchy.</p>
+<div class="literal-block-wrapper docutils container" id="glob-arst">
+<div class="code-block-caption"><span class="caption-number">Listing 2 </span><span class="caption-text">Implicit coding of global asynchronous resets</span><a class="headerlink" href="#glob-arst" title="Permalink to this code"></a></div>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="mh">7</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">13</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"></span>
+<span class="k">initial</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">37</span><span class="p">;</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="adff2dff-v">
+<div class="code-block-caption"><span class="caption-number">Listing 3 </span><span class="caption-text"><cite>adff2dff.v</cite></span><a class="headerlink" href="#adff2dff-v" title="Permalink to this code"></a></div>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="o">*</span><span class="w"> </span><span class="n">techmap_celltype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;$adff&quot;</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="w"></span>
+<span class="k">module</span><span class="w"> </span><span class="n">adff2dff</span><span class="w"> </span><span class="p">(</span><span class="n">CLK</span><span class="p">,</span><span class="w"> </span><span class="n">ARST</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">,</span><span class="w"> </span><span class="n">Q</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">parameter</span><span class="w"> </span><span class="n">WIDTH</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">1</span><span class="p">;</span><span class="w"></span>
+<span class="k">parameter</span><span class="w"> </span><span class="n">CLK_POLARITY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">1</span><span class="p">;</span><span class="w"></span>
+<span class="k">parameter</span><span class="w"> </span><span class="n">ARST_POLARITY</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">1</span><span class="p">;</span><span class="w"></span>
+<span class="k">parameter</span><span class="w"> </span><span class="n">ARST_VALUE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">input</span><span class="w"> </span><span class="n">CLK</span><span class="p">,</span><span class="w"> </span><span class="n">ARST</span><span class="p">;</span><span class="w"></span>
+<span class="k">input</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">D</span><span class="p">;</span><span class="w"></span>
+<span class="k">output</span><span class="w"> </span><span class="kt">reg</span><span class="w"> </span><span class="p">[</span><span class="n">WIDTH</span><span class="o">-</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">Q</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">wire</span><span class="w"> </span><span class="p">[</span><span class="mh">1023</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">_TECHMAP_DO_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;proc&quot;</span><span class="p">;</span><span class="w"></span>
+
+<span class="kt">wire</span><span class="w"> </span><span class="n">_TECHMAP_FAIL_</span><span class="w"> </span><span class="o">=</span><span class="w"></span>
+<span class="w">    </span><span class="o">!</span><span class="n">CLK_POLARITY</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="o">!</span><span class="n">ARST_POLARITY</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">always</span><span class="w"> </span><span class="p">@(</span><span class="k">posedge</span><span class="w"> </span><span class="n">CLK</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">ARST</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="n">Q</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">ARST_VALUE</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">                </span><span class="n">Q</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">D</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">endmodule</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+<p>In line 18 the proc command is called. But in this script the signal
+name globrst is passed to the command as a global reset signal for
+resetting the registers to their assigned initial values.</p>
+<p>Finally in line 19 the techmap command is used to replace all instances of
+flip-flops with asynchronous resets with flip-flops with synchronous resets. The
+map file used for this is shown in <a class="reference internal" href="#adff2dff-v"><span class="std std-numref">Listing 3</span></a>. Note how the
+techmap_celltype attribute is used in line 1 to tell the techmap command which
+cells to replace in the design, how the _TECHMAP_FAIL_ wire in lines 15 and 16
+(which evaluates to a constant value) determines if the parameter set is
+compatible with this replacement circuit, and how the _TECHMAP_DO_ wire in
+line 13 provides a mini synthesis-script to be used to process this cell.</p>
+<div class="literal-block-wrapper docutils container" id="sieve">
+<div class="code-block-caption"><span class="caption-number">Listing 4 </span><span class="caption-text">Test program for the Amber23 CPU (Sieve of Eratosthenes). Compiled
+using GCC 4.6.3 for ARM with <code class="docutils literal notranslate"><span class="pre">-Os</span> <span class="pre">-marm</span> <span class="pre">-march=armv2a</span>
+<span class="pre">-mno-thumb-interwork</span> <span class="pre">-ffreestanding</span></code>, linked with <code class="docutils literal notranslate"><span class="pre">--fix-v4bx</span></code>
+set and booted with a custom setup routine written in ARM assembler.</span><a class="headerlink" href="#sieve" title="Permalink to this code"></a></div>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdint.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdbool.h&gt;</span><span class="cp"></span>
+
+<span class="cp">#define BITMAP_SIZE 64</span>
+<span class="cp">#define OUTPORT 0x10000000</span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">bitmap</span><span class="p">[</span><span class="n">BITMAP_SIZE</span><span class="o">/</span><span class="mi">32</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">bitmap_set</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">idx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">bitmap</span><span class="p">[</span><span class="n">idx</span><span class="o">/</span><span class="mi">32</span><span class="p">]</span><span class="w"> </span><span class="o">|=</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">32</span><span class="p">);</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="nf">bitmap_get</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">idx</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="p">(</span><span class="n">bitmap</span><span class="p">[</span><span class="n">idx</span><span class="o">/</span><span class="mi">32</span><span class="p">]</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="p">(</span><span class="n">idx</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">32</span><span class="p">)))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+<span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">output</span><span class="p">(</span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">*</span><span class="p">((</span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">*</span><span class="p">)</span><span class="n">OUTPORT</span><span class="p">)</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">val</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w"></span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">output</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">BITMAP_SIZE</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">bitmap_get</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">output</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">);;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">3</span><span class="o">+</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="o">%</span><span class="mi">2</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">continue</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">j</span><span class="mi">-3</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">k</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">BITMAP_SIZE</span><span class="p">)</span><span class="w"> </span><span class="k">break</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">bitmap_set</span><span class="p">(</span><span class="n">k</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="p">}</span><span class="w"></span>
+<span class="w">    </span><span class="n">output</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="verification-of-the-amber23-cpu">
+<h2>Verification of the Amber23 CPU<a class="headerlink" href="#verification-of-the-amber23-cpu" title="Permalink to this heading"></a></h2>
+<p>The BLIF file for the Amber23 core, generated using <a class="reference internal" href="#amber23-ys"><span class="std std-numref">Listing 1</span></a> and
+<a class="reference internal" href="#adff2dff-v"><span class="std std-numref">Listing 3</span></a> and the version of the Amber23 RTL source that is bundled
+with yosys-bigsim, was verified using the test-bench from yosys-bigsim. It
+successfully executed the program shown in <a class="reference internal" href="#sieve"><span class="std std-numref">Listing 4</span></a> in the test-bench.</p>
+<p>For simulation the BLIF file was converted back to Verilog using <a class="reference external" href="https://github.com/berkeley-abc/abc">ABC</a>. So this
+test includes the successful transformation of the BLIF file into ABC’s internal
+format as well.</p>
+<p>The only thing left to write about the simulation itself is that it
+probably was one of the most energy inefficient and time consuming ways
+of successfully calculating the first 31 primes the author has ever
+conducted.</p>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this heading"></a></h2>
+<p>At the time of this writing Yosys does not support multi-dimensional
+memories, does not support writing to individual bits of array elements,
+does not support initialization of arrays with $readmemb and $readmemh,
+and has only limited support for tristate logic, to name just a few
+limitations.</p>
+<p>That being said, Yosys can synthesize an overwhelming majority of
+real-world Verilog RTL code. The remaining cases can usually be modified
+to be compatible with Yosys quite easily.</p>
+<p>The various designs in yosys-bigsim are a good place to look for
+examples of what is within the capabilities of Yosys.</p>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Permalink to this heading"></a></h2>
+<p>Yosys is a feature-rich Verilog-2005 synthesis tool. It has many uses,
+but one is to provide an easy gateway from high-level Verilog code to
+low-level logic circuits.</p>
+<p>The command line option -S can be used to quickly synthesize Verilog
+code to BLIF files without a hassle.</p>
+<p>With custom synthesis scripts it becomes possible to easily perform
+high-level optimizations, such as re-encoding FSMs. In some extreme
+cases, such as the Amber23 ARMv2 CPU, the more advanced Yosys features
+can be used to change a design to fit a certain need without actually
+touching the RTL code.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_TextRtlil.html" class="btn btn-neutral float-left" title="RTLIL text representation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="APPNOTE_011_Design_Investigation.html" class="btn btn-neutral float-right" title="011: Interactive design investigation page" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

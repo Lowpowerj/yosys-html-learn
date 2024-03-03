@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1. Introduction &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="2. Basic principles" href="CHAPTER_Basics.html" />
+    <link rel="prev" title="Yosys manual" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">1. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#history-of-yosys">1.1. History of Yosys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#structure-of-this-document">1.2. Structure of this document</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">1. </span>Introduction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CHAPTER_Intro.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction">
+<span id="chapter-intro"></span><h1><span class="section-number">1. </span>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h1>
+<p>This document presents the Free and Open Source (FOSS) Verilog HDL synthesis
+tool “Yosys”. Its design and implementation as well as its performance on
+real-world designs is discussed in this document.</p>
+<section id="history-of-yosys">
+<h2><span class="section-number">1.1. </span>History of Yosys<a class="headerlink" href="#history-of-yosys" title="Permalink to this heading"></a></h2>
+<p>A Hardware Description Language (HDL) is a computer language used to describe
+circuits. A HDL synthesis tool is a computer program that takes a formal
+description of a circuit written in an HDL as input and generates a netlist that
+implements the given circuit as output.</p>
+<p>Currently the most widely used and supported HDLs for digital circuits are
+Verilog <span id="id1">[<a class="reference internal" href="bib.html#id12" title="IEEE Standards Association and others. Ieee standard for verilog register transfer level synthesis. IEEE Std 1364.1-2002, 2002. doi:10.1109/IEEESTD.2002.94220.">A+02</a>, <a class="reference internal" href="bib.html#id11" title="IEEE Standards Association and others. Ieee standard for verilog hardware description language. IEEE Std 1364-2005 (Revision of IEEE Std 1364-2001), 2006. doi:10.1109/IEEESTD.2006.99495.">A+06</a>]</span> and <abbr title="VHSIC HDL, where VHSIC is an acronym for Very-High-Speed Integrated Circuits">VHDL</abbr>
+<span id="id2">[<a class="reference internal" href="bib.html#id14" title="IEEE Standards Association and others. Ieee standard for vhdl register transfer level (rtl) synthesis. IEEE Std 1076.6-2004 (Revision of IEEE Std 1076.6-1999), 2004. doi:10.1109/IEEESTD.2004.94802.">A+04</a>, <a class="reference internal" href="bib.html#id13" title="IEEE Standards Association and others. Ieee standard vhdl language reference manual. IEEE Std 1076-2008 (Revision of IEEE Std 1076-2002), 26 2009. doi:10.1109/IEEESTD.2009.4772740.">A+09</a>]</span>. Both HDLs are used for test and verification purposes
+as well as logic synthesis, resulting in a set of synthesizable and a set of
+non-synthesizable language features. In this document we only look at the
+synthesizable subset of the language features.</p>
+<p>In recent work on heterogeneous coarse-grain reconfigurable logic
+<span id="id3">[<a class="reference internal" href="bib.html#id2" title="C. Wolf, Johann Glaser, Florian Schupfer, Jan Haase, and Christoph Grimm. Example-driven interconnect synthesis for heterogeneous coarse-grain reconfigurable logic. In FDL Proceeding of the 2012 Forum on Specification and Design Languages, 194–201. 2012.">WGS+12</a>]</span> the need for a custom application-specific HDL synthesis
+tool emerged. It was soon realised that a synthesis tool that understood Verilog
+or VHDL would be preferred over a synthesis tool for a custom HDL. Given an
+existing Verilog or VHDL front end, the work for writing the necessary
+additional features and integrating them in an existing tool can be estimated to
+be about the same as writing a new tool with support for a minimalistic custom
+HDL.</p>
+<p>The proposed custom HDL synthesis tool should be licensed under a Free and Open
+Source Software (FOSS) licence. So an existing FOSS Verilog or VHDL synthesis
+tool would have been needed as basis to build upon. The main advantages of
+choosing Verilog or VHDL is the ability to synthesize existing HDL code and to
+mitigate the requirement for circuit-designers to learn a new language. In order
+to take full advantage of any existing FOSS Verilog or VHDL tool, such a tool
+would have to provide a feature-complete implementation of the synthesizable HDL
+subset.</p>
+<p>Basic RTL synthesis is a well understood field <span id="id4">[<a class="reference internal" href="bib.html#id10" title="G D Hachtel and F Somenzi. Logic synthesis and verification algorithms. 1996.">HS96</a>]</span>. Lexing,
+parsing and processing of computer languages <span id="id5">[<a class="reference internal" href="bib.html#id16" title="Alfred V. Aho, Ravi Sethi, and Jeffrey D. Ullman. Compilers: principles, techniques, and tools. Addison-Wesley Longman Publishing Co., Inc., Boston, MA, USA, 1986. ISBN 0-201-10088-6.">ASU86</a>]</span> is a
+thoroughly researched field. All the information required to write such tools
+has been openly available for a long time, and it is therefore likely that a
+FOSS HDL synthesis tool with a feature-complete Verilog or VHDL front end must
+exist which can be used as a basis for a custom RTL synthesis tool.</p>
+<p>Due to the author’s preference for Verilog over VHDL it was decided early on to
+go for Verilog instead of VHDL <a class="footnote-reference brackets" href="#id7" id="id6">1</a>. So the existing FOSS Verilog synthesis
+tools were evaluated. The results of this evaluation are utterly devastating.
+Therefore a completely new Verilog synthesis tool was implemented and is
+recommended as basis for custom synthesis tools. This is the tool that is
+discussed in this document.</p>
+</section>
+<section id="structure-of-this-document">
+<h2><span class="section-number">1.2. </span>Structure of this document<a class="headerlink" href="#structure-of-this-document" title="Permalink to this heading"></a></h2>
+<p>The structure of this document is as follows:</p>
+<p><a class="reference internal" href="#chapter-intro"><span class="std std-numref">Chapter 1</span></a> is this introduction.</p>
+<p><a class="reference internal" href="CHAPTER_Basics.html#chapter-basics"><span class="std std-numref">Chapter 2</span></a> covers a short introduction to the world
+of HDL synthesis. Basic principles and the terminology are outlined in this
+chapter.</p>
+<p><a class="reference internal" href="CHAPTER_Approach.html#chapter-approach"><span class="std std-numref">Chapter 3</span></a> gives the quickest possible outline to
+how the problem of implementing a HDL synthesis tool is approached in the case
+of Yosys.</p>
+<p><a class="reference internal" href="CHAPTER_Overview.html#chapter-overview"><span class="std std-numref">Chapter 4</span></a> contains a more detailed overview of the
+implementation of Yosys. This chapter covers the data structures used in Yosys
+to represent a design in detail and is therefore recommended reading for
+everyone who is interested in understanding the Yosys internals.</p>
+<p><a class="reference internal" href="CHAPTER_CellLib.html#chapter-celllib"><span class="std std-numref">Chapter 5</span></a> covers the internal cell library used by
+Yosys. This is especially important knowledge for anyone who wants to understand
+the intermediate netlists used internally by Yosys.</p>
+<p><a class="reference internal" href="CHAPTER_Prog.html#chapter-prog"><span class="std std-numref">Chapter 6</span></a> gives a tour to the internal APIs of Yosys.
+This is recommended reading for everyone who actually wants to read or write
+Yosys source code. The chapter concludes with an example loadable module for
+Yosys.</p>
+<p>Chapters <a class="reference internal" href="CHAPTER_Verilog.html#chapter-verilog"><span class="std std-numref">7</span></a>, <a class="reference internal" href="CHAPTER_Optimize.html#chapter-opt"><span class="std std-numref">8</span></a> and
+<a class="reference internal" href="CHAPTER_Techmap.html#chapter-techmap"><span class="std std-numref">9</span></a> cover three important pieces of the synthesis
+pipeline: The Verilog frontend, the optimization passes and the technology
+mapping to the target architecture, respectively.</p>
+<p>Various appendices, including a <a class="reference internal" href="cmd_ref.html#cmd-ref"><span class="std std-ref">Command line reference</span></a>, complete this document.</p>
+<dl class="footnote brackets">
+<dt class="label" id="id7"><span class="brackets"><a class="fn-backref" href="#id6">1</a></span></dt>
+<dd><p>A quick investigation into FOSS VHDL tools yielded similar grim results for
+FOSS VHDL synthesis tools.</p>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Yosys manual" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CHAPTER_Basics.html" class="btn btn-neutral float-right" title="2. Basic principles" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

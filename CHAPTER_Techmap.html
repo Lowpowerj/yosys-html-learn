@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>9. Technology mapping &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="10. Memory mapping" href="CHAPTER_Memorymap.html" />
+    <link rel="prev" title="8. Optimizations" href="CHAPTER_Optimize.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">9. Technology mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cell-substitution">9.1. Cell substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subcircuit-substitution">9.2. Subcircuit substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gate-level-technology-mapping">9.3. Gate-level technology mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">9. </span>Technology mapping</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CHAPTER_Techmap.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="technology-mapping">
+<span id="chapter-techmap"></span><h1><span class="section-number">9. </span>Technology mapping<a class="headerlink" href="#technology-mapping" title="Permalink to this heading"></a></h1>
+<p>Previous chapters outlined how HDL code is transformed into an RTL netlist. The
+RTL netlist is still based on abstract coarse-grain cell types like arbitrary
+width adders and even multipliers. This chapter covers how an RTL netlist is
+transformed into a functionally equivalent netlist utilizing the cell types
+available in the target architecture.</p>
+<p>Technology mapping is often performed in two phases. In the first phase RTL
+cells are mapped to an internal library of single-bit cells (see <a class="reference internal" href="CHAPTER_CellLib.html#sec-celllib-gates"><span class="std std-numref">Sec.
+5.2</span></a>). In the second phase this netlist of internal gate
+types is transformed to a netlist of gates from the target technology library.</p>
+<p>When the target architecture provides coarse-grain cells (such as block ram or
+ALUs), these must be mapped to directly form the RTL netlist, as information on
+the coarse-grain structure of the design is lost when it is mapped to bit-width
+gate types.</p>
+<section id="cell-substitution">
+<h2><span class="section-number">9.1. </span>Cell substitution<a class="headerlink" href="#cell-substitution" title="Permalink to this heading"></a></h2>
+<p>The simplest form of technology mapping is cell substitution, as performed by
+the techmap pass. This pass, when provided with a Verilog file that implements
+the RTL cell types using simpler cells, simply replaces the RTL cells with the
+provided implementation.</p>
+<p>When no map file is provided, techmap uses a built-in map file that maps the
+Yosys RTL cell types to the internal gate library used by Yosys. The curious
+reader may find this map file as techlibs/common/techmap.v in the Yosys source
+tree.</p>
+<p>Additional features have been added to techmap to allow for conditional mapping
+of cells (see <span class="xref std std-doc">cmd/techmap</span>). This can for example be useful if the target
+architecture supports hardware multipliers for certain bit-widths but not for
+others.</p>
+<p>A usual synthesis flow would first use the techmap pass to directly map some RTL
+cells to coarse-grain cells provided by the target architecture (if any) and
+then use techmap with the built-in default file to map the remaining RTL cells
+to gate logic.</p>
+</section>
+<section id="subcircuit-substitution">
+<h2><span class="section-number">9.2. </span>Subcircuit substitution<a class="headerlink" href="#subcircuit-substitution" title="Permalink to this heading"></a></h2>
+<p>Sometimes the target architecture provides cells that are more powerful than the
+RTL cells used by Yosys. For example a cell in the target architecture that can
+calculate the absolute-difference of two numbers does not match any single RTL
+cell type but only combinations of cells.</p>
+<p>For these cases Yosys provides the extract pass that can match a given set of
+modules against a design and identify the portions of the design that are
+identical (i.e. isomorphic subcircuits) to any of the given modules. These
+matched subcircuits are then replaced by instances of the given modules.</p>
+<p>The extract pass also finds basic variations of the given modules, such as
+swapped inputs on commutative cell types.</p>
+<p>In addition to this the extract pass also has limited support for frequent
+subcircuit mining, i.e. the process of finding recurring subcircuits in the
+design. This has a few applications, including the design of new coarse-grain
+architectures <span id="id1">[<a class="reference internal" href="bib.html#id3" title="Johann Glaser and C. Wolf. Methodology and example-driven interconnect synthesis for designing heterogeneous coarse-grain reconfigurable architectures. In Jan Haase, editor, Advances in Models, Methods, and Tools for Complex Chip Design — Selected contributions from FDL'12. Springer, 2013.">GW13</a>]</span>.</p>
+<p>The hard algorithmic work done by the extract pass (solving the isomorphic
+subcircuit problem and frequent subcircuit mining) is performed using the
+SubCircuit library that can also be used stand-alone without Yosys (see
+<a class="reference internal" href="appendix/CHAPTER_Auxlibs.html#sec-subcircuit"><span class="std std-ref">SubCircuit</span></a>).</p>
+</section>
+<section id="gate-level-technology-mapping">
+<span id="sec-techmap-extern"></span><h2><span class="section-number">9.3. </span>Gate-level technology mapping<a class="headerlink" href="#gate-level-technology-mapping" title="Permalink to this heading"></a></h2>
+<p>On the gate-level the target architecture is usually described by a “Liberty
+file”. The Liberty file format is an industry standard format that can be used
+to describe the behaviour and other properties of standard library cells .</p>
+<p>Mapping a design utilizing the Yosys internal gate library (e.g. as a result of
+mapping it to this representation using the techmap pass) is performed in two
+phases.</p>
+<p>First the register cells must be mapped to the registers that are available on
+the target architectures. The target architecture might not provide all
+variations of d-type flip-flops with positive and negative clock edge,
+high-active and low-active asynchronous set and/or reset, etc. Therefore the
+process of mapping the registers might add additional inverters to the design
+and thus it is important to map the register cells first.</p>
+<p>Mapping of the register cells may be performed by using the dfflibmap pass. This
+pass expects a Liberty file as argument (using the -liberty option) and only
+uses the register cells from the Liberty file.</p>
+<p>Secondly the combinational logic must be mapped to the target architecture. This
+is done using the external program ABC via the abc pass by using the -liberty
+option to the pass. Note that in this case only the combinatorial cells are used
+from the cell library.</p>
+<p>Occasionally Liberty files contain trade secrets (such as sensitive timing
+information) that cannot be shared freely. This complicates processes such as
+reporting bugs in the tools involved. When the information in the Liberty file
+used by Yosys and ABC are not part of the sensitive information, the additional
+tool yosys-filterlib (see <a class="reference internal" href="appendix/CHAPTER_Auxprogs.html#sec-filterlib"><span class="std std-ref">yosys-filterlib</span></a>) can be used to strip the
+sensitive information from the Liberty file.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_Optimize.html" class="btn btn-neutral float-left" title="8. Optimizations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CHAPTER_Memorymap.html" class="btn btn-neutral float-right" title="10. Memory mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

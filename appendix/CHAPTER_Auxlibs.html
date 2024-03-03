@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auxiliary libraries &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="../_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Auxiliary programs" href="CHAPTER_Auxprogs.html" />
+    <link rel="prev" title="10. Memory mapping" href="../CHAPTER_Memorymap.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Auxiliary libraries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#sha1">SHA1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bigint">BigInt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subcircuit">SubCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ezsat">ezSAT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Auxiliary libraries</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/appendix/CHAPTER_Auxlibs.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="auxiliary-libraries">
+<h1>Auxiliary libraries<a class="headerlink" href="#auxiliary-libraries" title="Permalink to this heading"></a></h1>
+<p>The Yosys source distribution contains some auxiliary libraries that are bundled
+with Yosys.</p>
+<section id="sha1">
+<h2>SHA1<a class="headerlink" href="#sha1" title="Permalink to this heading"></a></h2>
+<p>The files in <code class="docutils literal notranslate"><span class="pre">libs/sha1/</span></code> provide a public domain SHA1 implementation written
+by Steve Reid, Bruce Guenter, and Volker Grabsch. It is used for generating
+unique names when specializing parameterized modules.</p>
+</section>
+<section id="bigint">
+<h2>BigInt<a class="headerlink" href="#bigint" title="Permalink to this heading"></a></h2>
+<p>The files in <code class="docutils literal notranslate"><span class="pre">libs/bigint/</span></code> provide a library for performing arithmetic with
+arbitrary length integers. It is written by Matt McCutchen.</p>
+<p>The BigInt library is used for evaluating constant expressions, e.g. using the
+ConstEval class provided in kernel/consteval.h.</p>
+<p>See also: <a class="reference external" href="http://mattmccutchen.net/bigint/">http://mattmccutchen.net/bigint/</a></p>
+</section>
+<section id="subcircuit">
+<span id="sec-subcircuit"></span><h2>SubCircuit<a class="headerlink" href="#subcircuit" title="Permalink to this heading"></a></h2>
+<p>The files in <code class="docutils literal notranslate"><span class="pre">libs/subcircuit</span></code> provide a library for solving the subcircuit
+isomorphism problem. It is written by C. Wolf and based on the Ullmann Subgraph
+Isomorphism Algorithm <span id="id1">[<a class="reference internal" href="../bib.html#id21" title="J. R. Ullmann. An algorithm for subgraph isomorphism. J. ACM, 23(1):31–42, January 1976. doi:10.1145/321921.321925.">Ull76</a>]</span>. It is used by the
+extract pass (see <span class="xref std std-doc">../cmd/extract</span>).</p>
+</section>
+<section id="ezsat">
+<h2>ezSAT<a class="headerlink" href="#ezsat" title="Permalink to this heading"></a></h2>
+<p>The files in <code class="docutils literal notranslate"><span class="pre">libs/ezsat</span></code> provide a library for simplifying generating CNF
+formulas for SAT solvers. It also contains bindings of MiniSAT. The ezSAT
+library is written by C. Wolf. It is used by the sat pass (see
+<span class="xref std std-doc">../cmd/sat</span>).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../CHAPTER_Memorymap.html" class="btn btn-neutral float-left" title="10. Memory mapping" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CHAPTER_Auxprogs.html" class="btn btn-neutral float-right" title="Auxiliary programs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yosys manual &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="1. Introduction" href="CHAPTER_Intro.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="#" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Yosys manual</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="abstract topic">
+<p class="topic-title">Abstract</p>
+<p>Most of today’s digital design is done in HDL code (mostly Verilog or
+VHDL) and with the help of HDL synthesis tools.</p>
+<p>In special cases such as synthesis for coarse-grain cell libraries or
+when testing new synthesis algorithms it might be necessary to write a
+custom HDL synthesis tool or add new features to an existing one. In
+these cases the availability of a Free and Open Source (FOSS) synthesis
+tool that can be used as basis for custom tools would be helpful.</p>
+<p>In the absence of such a tool, the Yosys Open SYnthesis Suite (Yosys)
+was developed. This document covers the design and implementation of
+this tool. At the moment the main focus of Yosys lies on the high-level
+aspects of digital synthesis. The pre-existing FOSS logic-synthesis tool
+ABC is used by Yosys to perform advanced gate-level optimizations.</p>
+<p>An evaluation of Yosys based on real-world designs is included. It is
+shown that Yosys can be used as-is to synthesize such designs. The
+results produced by Yosys in this tests where successfully verified
+using formal verification and are comparable in quality to the results
+produced by a commercial synthesis tool.</p>
+<p>This document was originally published as bachelor thesis at the Vienna
+University of Technology <span id="id1">[<a class="reference internal" href="bib.html#id4" title="C. Wolf. Design and implementation of the yosys open synthesis suite. Bachelor Thesis, Vienna University of Technology, 2013.">Wol13</a>]</span>.</p>
+</div>
+<section id="yosys-manual">
+<h1>Yosys manual<a class="headerlink" href="#yosys-manual" title="Permalink to this heading"></a></h1>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Intro.html#history-of-yosys">1.1. History of Yosys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Intro.html#structure-of-this-document">1.2. Structure of this document</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Basics.html#levels-of-abstraction">2.1. Levels of abstraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Basics.html#features-of-synthesizable-verilog">2.2. Features of synthesizable Verilog</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Basics.html#challenges-in-digital-circuit-synthesis">2.3. Challenges in digital circuit synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Basics.html#script-based-synthesis-flows">2.4. Script-based synthesis flows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Basics.html#methods-from-compiler-design">2.5. Methods from compiler design</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Approach.html#data-and-control-flow">3.1. Data- and control-flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Approach.html#internal-formats-in-yosys">3.2. Internal formats in Yosys</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Approach.html#typical-use-case">3.3. Typical use case</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Overview.html#simplified-data-flow">4.1. Simplified data flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Overview.html#the-rtl-intermediate-language-rtlil">4.2. The RTL Intermediate Language (RTLIL)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Overview.html#command-interface-and-synthesis-scripts">4.3. Command interface and synthesis scripts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Overview.html#source-tree-and-build-system">4.4. Source tree and build system</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_CellLib.html#rtl-cells">5.1. RTL cells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_CellLib.html#gates">5.2. Gates</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Prog.html#guidelines">6.1. Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Prog.html#the-stubsnets-example-module">6.2. The “stubsnets” example module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Verilog.html#transforming-verilog-to-ast">7.1. Transforming Verilog to AST</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Verilog.html#transforming-ast-to-rtlil">7.2. Transforming AST to RTLIL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Verilog.html#synthesizing-verilog-always-blocks">7.3. Synthesizing Verilog always blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Verilog.html#synthesizing-verilog-arrays">7.4. Synthesizing Verilog arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Verilog.html#synthesizing-parametric-designs">7.5. Synthesizing parametric designs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Optimize.html">8. Optimizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Optimize.html#simple-optimizations">8.1. Simple optimizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Optimize.html#fsm-extraction-and-encoding">8.2. FSM extraction and encoding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Optimize.html#logic-optimization">8.3. Logic optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Techmap.html#cell-substitution">9.1. Cell substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Techmap.html#subcircuit-substitution">9.2. Subcircuit substitution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Techmap.html#gate-level-technology-mapping">9.3. Gate-level technology mapping</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#additional-notes">10.1. Additional notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#simple-dual-port-sdp-memory-patterns">10.2. Simple dual port (SDP) memory patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#single-port-ram-memory-patterns">10.3. Single-port RAM memory patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#read-register-reset-patterns">10.4. Read register reset patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#asymmetric-memory-patterns">10.5. Asymmetric memory patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#true-dual-port-tdp-patterns">10.6. True dual port (TDP) patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#not-yet-supported-patterns">10.7. Not yet supported patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="CHAPTER_Memorymap.html#undesired-patterns">10.8. Undesired patterns</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html#sha1">SHA1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html#bigint">BigInt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html#subcircuit">SubCircuit</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html#ezsat">ezSAT</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html#yosys-config">yosys-config</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html#yosys-filterlib">yosys-filterlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html#yosys-abc">yosys-abc</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html#lexical-elements">Lexical elements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html#file">File</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#getting-started">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#using-a-synthesis-script">Using a synthesis script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#advanced-example-the-amber23-armv2a-cpu">Advanced example: The Amber23 ARMv2a CPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#verification-of-the-amber23-cpu">Verification of the Amber23 CPU</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#limitations">Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html#installation-and-prerequisites">Installation and prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html#introduction-to-the-show-command">Introduction to the show command</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html#navigating-the-design">Navigating the design</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html#advanced-investigation-techniques">Advanced investigation techniques</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html#quick-start">Quick start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html#detailed-flow">Detailed flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html#limitations">Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html#conclusion">Conclusion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_Intro.html" class="btn btn-neutral float-right" title="1. Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

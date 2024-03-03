@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>8. Optimizations &mdash; YosysHQ Yosys  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+      <link rel="stylesheet" type="text/css" href="_static/yosyshq.css" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+
+  
+    <link rel="shortcut icon" href="_static/favico.png"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="9. Technology mapping" href="CHAPTER_Techmap.html" />
+    <link rel="prev" title="7. The Verilog and AST frontends" href="CHAPTER_Verilog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            YosysHQ Yosys
+              <img src="_static/logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Manual</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Intro.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Basics.html">2. Basic principles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Approach.html">3. Approach</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Overview.html">4. Implementation overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_CellLib.html">5. Internal cell library</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Prog.html">6. Programming Yosys extensions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Verilog.html">7. The Verilog and AST frontends</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">8. Optimizations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#simple-optimizations">8.1. Simple optimizations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#the-opt-expr-pass">8.1.1. The opt_expr pass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-opt-muxtree-pass">8.1.2. The opt_muxtree pass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-opt-reduce-pass">8.1.3. The opt_reduce pass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-opt-rmdff-pass">8.1.4. The opt_rmdff pass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-opt-clean-pass">8.1.5. The opt_clean pass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-opt-merge-pass">8.1.6. The opt_merge pass</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fsm-extraction-and-encoding">8.2. FSM extraction and encoding</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#fsm-detection">8.2.1. FSM detection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fsm-extraction">8.2.2. FSM extraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fsm-optimization">8.2.3. FSM optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fsm-recoding">8.2.4. FSM recoding</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#logic-optimization">8.3. Logic optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Techmap.html">9. Technology mapping</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHAPTER_Memorymap.html">10. Memory mapping</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Appendix</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxlibs.html">Auxiliary libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_Auxprogs.html">Auxiliary programs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/CHAPTER_TextRtlil.html">RTLIL text representation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_010_Verilog_to_BLIF.html">010: Converting Verilog to BLIF page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_011_Design_Investigation.html">011: Interactive design investigation page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="appendix/APPNOTE_012_Verilog_to_BTOR.html">012: Converting Verilog to BTOR page</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bib.html">Literature references</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cmd_ref.html">Command line reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">YosysHQ Yosys</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><span class="section-number">8. </span>Optimizations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/CHAPTER_Optimize.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="optimizations">
+<span id="chapter-opt"></span><h1><span class="section-number">8. </span>Optimizations<a class="headerlink" href="#optimizations" title="Permalink to this heading"></a></h1>
+<p>Yosys employs a number of optimizations to generate better and cleaner results.
+This chapter outlines these optimizations.</p>
+<section id="simple-optimizations">
+<h2><span class="section-number">8.1. </span>Simple optimizations<a class="headerlink" href="#simple-optimizations" title="Permalink to this heading"></a></h2>
+<p>The Yosys pass opt runs a number of simple optimizations. This includes removing
+unused signals and cells and const folding. It is recommended to run this pass
+after each major step in the synthesis script. At the time of this writing the
+opt pass executes the following passes that each perform a simple optimization:</p>
+<ul class="simple">
+<li><p>Once at the beginning of opt:</p>
+<ul>
+<li><p>opt_expr</p></li>
+<li><p>opt_merge -nomux</p></li>
+</ul>
+</li>
+<li><p>Repeat until result is stable:</p>
+<ul>
+<li><p>opt_muxtree</p></li>
+<li><p>opt_reduce</p></li>
+<li><p>opt_merge</p></li>
+<li><p>opt_rmdff</p></li>
+<li><p>opt_clean</p></li>
+<li><p>opt_expr</p></li>
+</ul>
+</li>
+</ul>
+<p>The following section describes each of the opt_ passes.</p>
+<section id="the-opt-expr-pass">
+<h3><span class="section-number">8.1.1. </span>The opt_expr pass<a class="headerlink" href="#the-opt-expr-pass" title="Permalink to this heading"></a></h3>
+<p>This pass performs const folding on the internal combinational cell types
+described in <a class="reference internal" href="CHAPTER_CellLib.html#chapter-celllib"><span class="std std-numref">Chap. 5</span></a>. This means a cell with all
+constant inputs is replaced with the constant value this cell drives. In some
+cases this pass can also optimize cells with some constant inputs.</p>
+<table class="docutils align-center" id="tab-opt-expr-and">
+<caption><span class="caption-number">Table 8.1 </span><span class="caption-text">Const folding rules for $_AND_ cells as used in opt_expr.</span><a class="headerlink" href="#tab-opt-expr-and" title="Permalink to this table"></a></caption>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 31%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>A-Input</p></th>
+<th class="head"><p>B-Input</p></th>
+<th class="head"><p>Replacement</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>any</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>0</p></td>
+<td><p>any</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>X/Z</p></td>
+<td><p>X/Z</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>X/Z</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-odd"><td><p>X/Z</p></td>
+<td><p>1</p></td>
+<td><p>X</p></td>
+</tr>
+<tr class="row-even"><td><p>any</p></td>
+<td><p>X/Z</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-odd"><td><p>X/Z</p></td>
+<td><p>any</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p><span class="math notranslate nohighlight">\(a\)</span></p></td>
+<td><p>1</p></td>
+<td><p><span class="math notranslate nohighlight">\(a\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(b\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="#tab-opt-expr-and"><span class="std std-numref">Table 8.1</span></a> shows the replacement rules used for
+optimizing an $_AND_ gate. The first three rules implement the obvious const
+folding rules. Note that ‘any’ might include dynamic values calculated by other
+parts of the circuit. The following three lines propagate undef (X) states.
+These are the only three cases in which it is allowed to propagate an undef
+according to Sec. 5.1.10 of IEEE Std. 1364-2005 <span id="id1">[<a class="reference internal" href="bib.html#id11" title="IEEE Standards Association and others. Ieee standard for verilog hardware description language. IEEE Std 1364-2005 (Revision of IEEE Std 1364-2001), 2006. doi:10.1109/IEEESTD.2006.99495.">A+06</a>]</span>.</p>
+<p>The next two lines assume the value 0 for undef states. These two rules are only
+used if no other substitutions are possible in the current module. If other
+substitutions are possible they are performed first, in the hope that the ‘any’
+will change to an undef value or a 1 and therefore the output can be set to
+undef.</p>
+<p>The last two lines simply replace an $_AND_ gate with one constant-1 input with
+a buffer.</p>
+<p>Besides this basic const folding the opt_expr pass can replace 1-bit wide $eq
+and $ne cells with buffers or not-gates if one input is constant.</p>
+<p>The opt_expr pass is very conservative regarding optimizing $mux cells, as these
+cells are often used to model decision-trees and breaking these trees can
+interfere with other optimizations.</p>
+</section>
+<section id="the-opt-muxtree-pass">
+<h3><span class="section-number">8.1.2. </span>The opt_muxtree pass<a class="headerlink" href="#the-opt-muxtree-pass" title="Permalink to this heading"></a></h3>
+<p>This pass optimizes trees of multiplexer cells by analyzing the select inputs.
+Consider the following simple example:</p>
+<div class="highlight-verilog notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="k">module</span><span class="w"> </span><span class="n">uut</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">);</span><span class="w"> </span><span class="k">input</span><span class="w"> </span><span class="n">a</span><span class="p">;</span><span class="w"> </span><span class="k">output</span><span class="w"> </span><span class="p">[</span><span class="mh">1</span><span class="o">:</span><span class="mh">0</span><span class="p">]</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="n">a</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mh">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">2</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mh">3</span><span class="p">;</span><span class="w"> </span><span class="k">endmodule</span><span class="w"></span>
+</pre></div>
+</div>
+<p>The output can never be 2, as this would require <code class="docutils literal notranslate"><span class="pre">a</span></code> to be 1 for the outer
+multiplexer and 0 for the inner multiplexer. The opt_muxtree pass detects this
+contradiction and replaces the inner multiplexer with a constant 1, yielding the
+logic for <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">=</span> <span class="pre">a</span> <span class="pre">?</span> <span class="pre">1</span> <span class="pre">:</span> <span class="pre">3</span></code>.</p>
+</section>
+<section id="the-opt-reduce-pass">
+<h3><span class="section-number">8.1.3. </span>The opt_reduce pass<a class="headerlink" href="#the-opt-reduce-pass" title="Permalink to this heading"></a></h3>
+<p>This is a simple optimization pass that identifies and consolidates identical
+input bits to $reduce_and and $reduce_or cells. It also sorts the input bits to
+ease identification of shareable $reduce_and and $reduce_or cells in other
+passes.</p>
+<p>This pass also identifies and consolidates identical inputs to multiplexer
+cells. In this case the new shared select bit is driven using a $reduce_or cell
+that combines the original select bits.</p>
+<p>Lastly this pass consolidates trees of $reduce_and cells and trees of $reduce_or
+cells to single large $reduce_and or $reduce_or cells.</p>
+<p>These three simple optimizations are performed in a loop until a stable result
+is produced.</p>
+</section>
+<section id="the-opt-rmdff-pass">
+<h3><span class="section-number">8.1.4. </span>The opt_rmdff pass<a class="headerlink" href="#the-opt-rmdff-pass" title="Permalink to this heading"></a></h3>
+<p>This pass identifies single-bit d-type flip-flops ($_DFF_, $dff, and $adff
+cells) with a constant data input and replaces them with a constant driver.</p>
+</section>
+<section id="the-opt-clean-pass">
+<h3><span class="section-number">8.1.5. </span>The opt_clean pass<a class="headerlink" href="#the-opt-clean-pass" title="Permalink to this heading"></a></h3>
+<p>This pass identifies unused signals and cells and removes them from the design.
+It also creates an <code class="docutils literal notranslate"><span class="pre">\unused_bits</span></code> attribute on wires with unused bits. This
+attribute can be used for debugging or by other optimization passes.</p>
+</section>
+<section id="the-opt-merge-pass">
+<h3><span class="section-number">8.1.6. </span>The opt_merge pass<a class="headerlink" href="#the-opt-merge-pass" title="Permalink to this heading"></a></h3>
+<p>This pass performs trivial resource sharing. This means that this pass
+identifies cells with identical inputs and replaces them with a single instance
+of the cell.</p>
+<p>The option -nomux can be used to disable resource sharing for multiplexer cells
+($mux and $pmux. This can be useful as it prevents multiplexer trees to be
+merged, which might prevent opt_muxtree to identify possible optimizations.</p>
+</section>
+</section>
+<section id="fsm-extraction-and-encoding">
+<h2><span class="section-number">8.2. </span>FSM extraction and encoding<a class="headerlink" href="#fsm-extraction-and-encoding" title="Permalink to this heading"></a></h2>
+<p>The fsm pass performs finite-state-machine (FSM) extraction and recoding. The
+fsm pass simply executes the following other passes:</p>
+<ul class="simple">
+<li><p>Identify and extract FSMs:</p>
+<ul>
+<li><p>fsm_detect</p></li>
+<li><p>fsm_extract</p></li>
+</ul>
+</li>
+<li><p>Basic optimizations:</p>
+<ul>
+<li><p>fsm_opt</p></li>
+<li><p>opt_clean</p></li>
+<li><p>fsm_opt</p></li>
+</ul>
+</li>
+<li><p>Expanding to nearby gate-logic (if called with -expand):</p>
+<ul>
+<li><p>fsm_expand</p></li>
+<li><p>opt_clean</p></li>
+<li><p>fsm_opt</p></li>
+</ul>
+</li>
+<li><p>Re-code FSM states (unless called with -norecode):</p>
+<ul>
+<li><p>fsm_recode</p></li>
+</ul>
+</li>
+<li><p>Print information about FSMs:</p>
+<ul>
+<li><p>fsm_info</p></li>
+</ul>
+</li>
+<li><p>Export FSMs in KISS2 file format (if called with -export):</p>
+<ul>
+<li><p>fsm_export</p></li>
+</ul>
+</li>
+<li><p>Map FSMs to RTL cells (unless called with -nomap):</p>
+<ul>
+<li><p>fsm_map</p></li>
+</ul>
+</li>
+</ul>
+<p>The fsm_detect pass identifies FSM state registers and marks them using the
+<code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span> <span class="pre">=</span> <span class="pre">&quot;auto&quot;</span></code> attribute. The fsm_extract extracts all FSMs marked
+using the <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span></code> attribute (unless <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span></code> is set to
+“none”) and replaces the corresponding RTL cells with a $fsm cell. All other
+fsm_ passes operate on these $fsm cells. The fsm_map call finally replaces the
+$fsm cells with RTL cells.</p>
+<p>Note that these optimizations operate on an RTL netlist. I.e. the fsm pass
+should be executed after the proc pass has transformed all RTLIL::Process
+objects to RTL cells.</p>
+<p>The algorithms used for FSM detection and extraction are influenced by a more
+general reported technique <span id="id2">[<a class="reference internal" href="bib.html#id19" title="Yiqiong Shi, Chan Wai Ting, Bah-Hwee Gwee, and Ye Ren. A highly efficient method for extracting fsms from flattened gate-level netlist. In Circuits and Systems (ISCAS), Proceedings of 2010 IEEE International Symposium on, 2610-2613. 2010. doi:10.1109/ISCAS.2010.5537093.">STGR10</a>]</span>.</p>
+<section id="fsm-detection">
+<h3><span class="section-number">8.2.1. </span>FSM detection<a class="headerlink" href="#fsm-detection" title="Permalink to this heading"></a></h3>
+<p>The fsm_detect pass identifies FSM state registers. It sets the <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span>
+<span class="pre">=</span> <span class="pre">&quot;auto&quot;</span></code> attribute on any (multi-bit) wire that matches the following
+description:</p>
+<ul class="simple">
+<li><p>Does not already have the <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span></code> attribute.</p></li>
+<li><p>Is not an output of the containing module.</p></li>
+<li><p>Is driven by single $dff or $adff cell.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">\D</span></code>-Input of this $dff or $adff cell is driven by a multiplexer tree
+that only has constants or the old state value on its leaves.</p></li>
+<li><p>The state value is only used in the said multiplexer tree or by simple
+relational cells that compare the state value to a constant (usually $eq
+cells).</p></li>
+</ul>
+<p>This heuristic has proven to work very well. It is possible to overwrite it by
+setting <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span> <span class="pre">=</span> <span class="pre">&quot;auto&quot;</span></code> on registers that should be considered FSM
+state registers and setting <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span> <span class="pre">=</span> <span class="pre">&quot;none&quot;</span></code> on registers that match
+the above criteria but should not be considered FSM state registers.</p>
+<p>Note however that marking state registers with <code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span></code> that are not
+suitable for FSM recoding can cause synthesis to fail or produce invalid
+results.</p>
+</section>
+<section id="fsm-extraction">
+<h3><span class="section-number">8.2.2. </span>FSM extraction<a class="headerlink" href="#fsm-extraction" title="Permalink to this heading"></a></h3>
+<p>The fsm_extract pass operates on all state signals marked with the
+(<code class="docutils literal notranslate"><span class="pre">\fsm_encoding</span> <span class="pre">!=</span> <span class="pre">&quot;none&quot;</span></code>) attribute. For each state signal the following
+information is determined:</p>
+<ul class="simple">
+<li><p>The state registers</p></li>
+<li><p>The asynchronous reset state if the state registers use asynchronous reset</p></li>
+<li><p>All states and the control input signals used in the state transition
+functions</p></li>
+<li><p>The control output signals calculated from the state signals and control
+inputs</p></li>
+<li><p>A table of all state transitions and corresponding control inputs- and
+outputs</p></li>
+</ul>
+<p>The state registers (and asynchronous reset state, if applicable) is simply
+determined by identifying the driver for the state signal.</p>
+<p>From there the $mux-tree driving the state register inputs is recursively
+traversed. All select inputs are control signals and the leaves of the $mux-tree
+are the states. The algorithm fails if a non-constant leaf that is not the state
+signal itself is found.</p>
+<p>The list of control outputs is initialized with the bits from the state signal.
+It is then extended by adding all values that are calculated by cells that
+compare the state signal with a constant value.</p>
+<p>In most cases this will cover all uses of the state register, thus rendering the
+state encoding arbitrary. If however a design uses e.g. a single bit of the
+state value to drive a control output directly, this bit of the state signal
+will be transformed to a control output of the same value.</p>
+<p>Finally, a transition table for the FSM is generated. This is done by using the
+ConstEval C++ helper class (defined in kernel/consteval.h) that can be used to
+evaluate parts of the design. The ConstEval class can be asked to calculate a
+given set of result signals using a set of signal-value assignments. It can also
+be passed a list of stop-signals that abort the ConstEval algorithm if the value
+of a stop-signal is needed in order to calculate the result signals.</p>
+<p>The fsm_extract pass uses the ConstEval class in the following way to create a
+transition table. For each state:</p>
+<ol class="arabic simple">
+<li><p>Create a ConstEval object for the module containing the FSM</p></li>
+<li><p>Add all control inputs to the list of stop signals</p></li>
+<li><p>Set the state signal to the current state</p></li>
+<li><p>Try to evaluate the next state and control output</p></li>
+<li><p>If step 4 was not successful:</p>
+<ul class="simple">
+<li><p>Recursively goto step 4 with the offending stop-signal set to 0.</p></li>
+<li><p>Recursively goto step 4 with the offending stop-signal set to 1.</p></li>
+</ul>
+</li>
+<li><p>If step 4 was successful: Emit transition</p></li>
+</ol>
+<p>Finally a $fsm cell is created with the generated transition table and added to
+the module. This new cell is connected to the control signals and the old
+drivers for the control outputs are disconnected.</p>
+</section>
+<section id="fsm-optimization">
+<h3><span class="section-number">8.2.3. </span>FSM optimization<a class="headerlink" href="#fsm-optimization" title="Permalink to this heading"></a></h3>
+<p>The fsm_opt pass performs basic optimizations on $fsm cells (not including state
+recoding). The following optimizations are performed (in this order):</p>
+<ul class="simple">
+<li><p>Unused control outputs are removed from the $fsm cell. The attribute
+<code class="docutils literal notranslate"><span class="pre">\unused_bits</span></code> (that is usually set by the opt_clean pass) is used to
+determine which control outputs are unused.</p></li>
+<li><p>Control inputs that are connected to the same driver are merged.</p></li>
+<li><p>When a control input is driven by a control output, the control input is
+removed and the transition table altered to give the same performance without
+the external feedback path.</p></li>
+<li><p>Entries in the transition table that yield the same output and only differ in
+the value of a single control input bit are merged and the different bit is
+removed from the sensitivity list (turned into a don’t-care bit).</p></li>
+<li><p>Constant inputs are removed and the transition table is altered to give an
+unchanged behaviour.</p></li>
+<li><p>Unused inputs are removed.</p></li>
+</ul>
+</section>
+<section id="fsm-recoding">
+<h3><span class="section-number">8.2.4. </span>FSM recoding<a class="headerlink" href="#fsm-recoding" title="Permalink to this heading"></a></h3>
+<p>The fsm_recode pass assigns new bit pattern to the states. Usually this also
+implies a change in the width of the state signal. At the moment of this writing
+only one-hot encoding with all-zero for the reset state is supported.</p>
+<p>The fsm_recode pass can also write a text file with the changes performed by it
+that can be used when verifying designs synthesized by Yosys using Synopsys
+Formality .</p>
+</section>
+</section>
+<section id="logic-optimization">
+<h2><span class="section-number">8.3. </span>Logic optimization<a class="headerlink" href="#logic-optimization" title="Permalink to this heading"></a></h2>
+<p>Yosys can perform multi-level combinational logic optimization on gate-level
+netlists using the external program ABC . The abc pass extracts the
+combinational gate-level parts of the design, passes it through ABC, and
+re-integrates the results. The abc pass can also be used to perform other
+operations using ABC, such as technology mapping (see <a class="reference internal" href="CHAPTER_Techmap.html#sec-techmap-extern"><span class="std std-numref">Sec 9.3</span></a> for details).</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="CHAPTER_Verilog.html" class="btn btn-neutral float-left" title="7. The Verilog and AST frontends" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="CHAPTER_Techmap.html" class="btn btn-neutral float-right" title="9. Technology mapping" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022 YosysHQ GmbH.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
